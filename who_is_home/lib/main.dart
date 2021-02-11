@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:who_is_home/pages/sign_in.dart';
+import 'package:who_is_home/pages/sign_up.dart';
 
 void main() => runApp(MaterialApp(
-  debugShowCheckedModeBanner: false,
-  title: 'Who is home?',
-  theme: ThemeData(
-    primarySwatch: Colors.primaryBlack,
-  ),
-  home: MyApp(),
-));
+      debugShowCheckedModeBanner: false,
+      title: 'Who is home?',
+      theme: ThemeData(
+        primarySwatch: Colors.primaryBlack,
+      ),
+      home: MyApp(),
+    ));
 
 class MyApp extends StatefulWidget {
   @override
@@ -37,28 +39,39 @@ class _MyAppState extends State<MyApp> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 15),
                 child: FlatButton(
-                    onPressed: null,
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SignInScreen()
+                          ));
+                    },
                     child: Container(
                       height: 60,
                       width: double.infinity,
                       decoration: BoxDecoration(
                           color: Colors.blueAccent,
-                          borderRadius: BorderRadius.circular(40)
-                      ),
-                      child: Center(child: Text('Войти',
+                          borderRadius: BorderRadius.circular(40)),
+                      child: Center(
+                          child: Text(
+                        'Войти',
                         style: TextStyle(
                           fontSize: 22,
                           color: Colors.white,
                         ),
-                        )
-                      ),
-                    )
-                ),
+                      )),
+                    )),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 15),
                 child: FlatButton(
-                    onPressed: null,
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SignUpScreen()
+                          ));
+                    },
                     child: Container(
                       height: 60,
                       width: double.infinity,
@@ -66,15 +79,15 @@ class _MyAppState extends State<MyApp> {
                           color: Colors.blueAccent,
                           borderRadius: BorderRadius.circular(40)
                       ),
-                      child: Center(child: Text('Зарегистрироваться',
+                      child: Center(
+                          child: Text(
+                        'Зарегистрироваться',
                         style: TextStyle(
                           fontSize: 22,
                           color: Colors.white,
                         ),
-                      )
-                      ),
-                    )
-                ),
+                      )),
+                    )),
               ),
             ],
           ),
