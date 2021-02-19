@@ -13,7 +13,7 @@ class UIComponent {
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(40),
           borderSide: BorderSide(
-            color: Colors.blueAccent,
+            color: Colors.lightBlue,
           )),
       focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(40),
@@ -23,7 +23,7 @@ class UIComponent {
           )),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(40),
-        borderSide: BorderSide(color: Colors.blueAccent),
+        borderSide: BorderSide(color: Colors.lightBlue),
       ),
     );
   }
@@ -42,14 +42,14 @@ class UIComponent {
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(40),
             borderSide: BorderSide(
-              color: Colors.blueAccent,
+              color: Colors.lightBlue,
             )),
         focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(40),
             borderSide: BorderSide(color: Colors.red, width: 1)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(40),
-          borderSide: BorderSide(color: Colors.blueAccent),
+          borderSide: BorderSide(color: Colors.lightBlue),
         ),
         suffixIcon: IconButton(
             icon: Icon(suffixIcon ? Icons.visibility : Icons.visibility_off),
@@ -71,7 +71,7 @@ class UIComponent {
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(40),
           borderSide: BorderSide(
-            color: Colors.blueAccent,
+            color: Colors.lightBlue,
           )),
       focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(40),

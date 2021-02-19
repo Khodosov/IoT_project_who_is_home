@@ -17,14 +17,14 @@ class _SignInScreenState extends State<SignInScreen> {
     return Scaffold(
       body: Stack(
         children: <Widget> [
-          Container(
+          /*Container(
             width: double.infinity,
             height: double.infinity,
             child: FittedBox(
               child: Image.asset('assets/images/guard_locked.jpg'),
               fit: BoxFit.fill,
             ),
-          ),
+          ),*/
           Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Padding(
               padding: EdgeInsets.fromLTRB(15, 0, 15, 45),
@@ -95,7 +95,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   height: 45,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                      color: Colors.blueAccent,
+                      color: Colors.lightBlue,
                       borderRadius: BorderRadius.circular(40)),
                   child: Center(
                       child: Text(

@@ -8,8 +8,11 @@ class userProfileSettingsPage extends StatefulWidget {
 class _userProfileSettingsPageState extends State<userProfileSettingsPage> {
   @override
   Widget build(BuildContext context) {
+    // TODO: Сделать настройки профиля. Как минимум сена почты и пароля.
     return Scaffold(
-
+      appBar: AppBar(
+        title: Text('сюда нельзя, уходи'),
+      ),
     );
   }
 }

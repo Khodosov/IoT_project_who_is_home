@@ -20,12 +20,16 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIOverlays([]);
+    // SystemChrome.setEnabledSystemUIOverlays([]);
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Image.asset('assets/images/home_alone.jpg'),
+          Padding(
+            padding: const EdgeInsets.only(top: 40),
+            child: Image.asset('assets/images/tempLogojpg.jpg'),
+          ),
           SizedBox(
             width: 15,
             height: 15,
@@ -50,7 +54,7 @@ class _MyAppState extends State<MyApp> {
                       height: 60,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                          color: Colors.blueAccent,
+                          color: Colors.lightBlue,
                           borderRadius: BorderRadius.circular(40)),
                       child: Center(
                           child: Text(
@@ -76,7 +80,7 @@ class _MyAppState extends State<MyApp> {
                       height: 60,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                          color: Colors.blueAccent,
+                          color: Colors.lightBlue,
                           borderRadius: BorderRadius.circular(40)
                       ),
                       child: Center(
