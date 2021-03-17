@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:who_is_home/main.dart';
 import 'package:who_is_home/pages/user_profile_settings.dart';
 
+import '../includes.dart';
+
 class userProfilePage extends StatefulWidget {
   @override
   _userProfilePageState createState() => _userProfilePageState();
@@ -10,8 +12,10 @@ class userProfilePage extends StatefulWidget {
 
 class _userProfilePageState extends State<userProfilePage> {
   String _name;
-  bool _visibleProgress = false, _roomFree = true;
-
+  bool _visibleProgress = false,
+      _roomFree = true,
+      _addNeighbor = false,
+      _showNeighbours = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +45,8 @@ class _userProfilePageState extends State<userProfilePage> {
                                 padding: EdgeInsets.only(left: 15),
                                 child: Text(
                                   'Профиль',
-                                  style:
-                                  TextStyle(color: Colors.white, fontSize: 20),
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 20),
                                 )),
                             IconButton(
                                 color: Colors.lightBlue,
@@ -69,162 +73,292 @@ class _userProfilePageState extends State<userProfilePage> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          MyApp()));
+                                      builder: (context) => MyApp()));
                             })
                       ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 20, bottom: 20),
-                    child: Card(
-                      color: _roomFree ? Colors.green[400] : Colors.red[400],
-                      elevation: 15,
-                      child: Container(
-                        width: double.infinity,
-                        height: 90,
-                        child: Center(
-                            child: Text(
-                              _roomFree ? 'Свободно' : 'Занято',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 40,
-                              ),
-                            )),
+                    padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(40),
+                        color: _roomFree ? Colors.green : Colors.red,
                       ),
-                    ),
-                  ),
-                  Container(
-                    height: 240,
-                    color: Colors.grey[200],
-                    child: ListView(
-                      shrinkWrap: true,
-                      children: [
-                        // TODO: Это уродство тут временно. Нужно что-то придумать с дизайном. ИСПРАВЛЯТЬ В ПОСЛЕДНЮЮ ОЧЕРЕДЬ!
-                        //  Пока оставлю.
-                        // TODO: Сюда передавать готовый список соседей. Его формировать в отдельтном методе, который вызывается в setState(). Список формируется после получения инфы с сервера
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
-                          child: Container(
-                            height: 50,
-                            width: double.infinity,
-                            color: Colors.transparent.withOpacity(0.2),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Name1'),
-                                Text(!_roomFree ? 'Дома' : 'Не дома')
-                              ],
-                            ),
-                          ),
+                      width: double.infinity,
+                      height: 500,
+                      child: Center(
+                          child: Text(
+                        _roomFree ? 'Свободно' : 'Занято',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 40,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Container(
-                            height: 50,
-                            width: double.infinity,
-                            color: Colors.transparent.withOpacity(0.2),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Name2'),
-                                Text(!_roomFree ? 'Дома' : 'Не дома')
-                              ],
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Container(
-                            height: 50,
-                            width: double.infinity,
-                            color: Colors.transparent.withOpacity(0.2),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Name3'),
-                                Text(!_roomFree ? 'Дома' : 'Не дома')
-                              ],
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Container(
-                            height: 50,
-                            width: double.infinity,
-                            color: Colors.transparent.withOpacity(0.2),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Name4'),
-                                Text(!_roomFree ? 'Дома' : 'Не дома')
-                              ],
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Container(
-                            height: 50,
-                            width: double.infinity,
-                            color: Colors.transparent.withOpacity(0.2),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Name5'),
-                                Text(!_roomFree ? 'Дома' : 'Не дома')
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+                      )),
                     ),
                   ),
                 ],
               ),
-              GestureDetector(
-                  onTap: (){
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                userProfileSettingsPage()));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: Container(
-                      height: 50,
-                      width: double.infinity,
-                      color: Colors.transparent.withOpacity(0.2),
-                      child: Center(
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 0, 15, 5),
+                    child: FlatButton(
+                        onPressed: () {
+                          setState(() {
+                            _showNeighbours = !_showNeighbours;
+                          });
+                        },
                         child: Container(
-                          height: 50,
-                          child: Column(
-                            children: [
-                              Text('Добавить соседа'),
-                              Icon(Icons.add),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                    ),
-                  )),
+                          height: 65,
+                          decoration: BoxDecoration(
+                              color: Colors.lightBlue,
+                              borderRadius: BorderRadius.circular(40)),
+                          child: Center(
+                              child: Text(
+                            'Соседи',
+                            style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                            ),
+                          )),
+                        )),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 5),
+                    child: FlatButton(
+                        onPressed: () {
+                          setState(() {
+                            _roomFree = !_roomFree;
+                          });
+                        },
+                        child: Container(
+                          height: 65,
+                          decoration: BoxDecoration(
+                              color: Colors.lightBlue,
+                              borderRadius: BorderRadius.circular(40)),
+                          child: Center(
+                              child: Text(
+                            _roomFree ? 'Вернулся' : 'Ухожу',
+                            style: TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                            ),
+                          )),
+                        )),
+                  ),
+                ],
+              ),
             ],
           ),
-          Visibility(
-            visible: _visibleProgress,
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              child: FittedBox(
-                child: Image.asset('assets/images/guard_unlocked.jpg'),
-                fit: BoxFit.fill,
-              ),
+          neighbourList(),
+        ],
+      ),
+    );
+  }
+
+  Widget neighbourList() {
+    return Center(
+      child: Visibility(
+        visible: _showNeighbours,
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white, 
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                // TODO: Это уродство тут временно. Нужно что-то придумать с дизайном. ИСПРАВЛЯТЬ В ПОСЛЕДНЮЮ ОЧЕРЕДЬ!
+                //  Пока оставлю.
+                // TODO: Сюда передавать готовый список соседей. Его формировать в отдельтном методе, который вызывается в setState(). Список формируется после получения инфы с сервера
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    color: _roomFree ? Colors.green[400] : Colors.red[400],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Name1'),
+                        Text(!_roomFree ? 'Дома' : 'Не дома')
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    color: _roomFree ? Colors.green[400] : Colors.red[400],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Name2'),
+                        Text(!_roomFree ? 'Дома' : 'Не дома')
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    color: _roomFree ? Colors.green[400] : Colors.red[400],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Name3'),
+                        Text(!_roomFree ? 'Дома' : 'Не дома')
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    color: _roomFree ? Colors.green[400] : Colors.red[400],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Name4'),
+                        Text(!_roomFree ? 'Дома' : 'Не дома')
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Container(
+                    height: 50,
+                    width: double.infinity,
+                    color: _roomFree ? Colors.green[400] : Colors.red[400],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Name5'),
+                        Text(!_roomFree ? 'Дома' : 'Не дома')
+                      ],
+                    ),
+                  ),
+                ),
+                Stack(
+                  children: [
+                    addNeighbour(),
+                    Visibility(
+                      visible: !_addNeighbor,
+                      child: FlatButton(
+                          onPressed: () {
+                            setState(() {
+                              _addNeighbor = !_addNeighbor;
+                            });
+                          },
+                          child: Container(
+                            height: 45,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                color: Colors.lightBlue,
+                                borderRadius: BorderRadius.circular(40)),
+                            child: Center(
+                                child: Text(
+                                  'Добавить соседа',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    color: Colors.white,
+                                  ),
+                                )
+                            ),
+                          )
+                      ),
+                    )
+                  ],
+                ),
+              ],
             ),
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget addNeighbour() {
+    return Visibility(
+      visible: _addNeighbor,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 60,
+              width: double.infinity,
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(40)),
+              child: TextFormField(
+                validator: UIComponent.emailValidate,
+                decoration: UIComponent.inputDecoration(
+                    label: 'Почта вашего соседа', hint: 'Введите вочту'),
+                onSaved: (value) {
+                  setState(() {
+                    _name = value;
+                  });
+                },
+              ),
+            ),
+            FlatButton(
+                onPressed: () {
+                  setState(() {
+                    _addNeighbor = !_addNeighbor;
+                  });
+                },
+                child: Container(
+                  height: 45,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: Colors.lightBlue,
+                      borderRadius: BorderRadius.circular(40)),
+                  child: Center(
+                      child: Text(
+                    'Отправить приглашение!',
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.white,
+                    ),
+                  )),
+                )),
+            Padding(
+              padding: const EdgeInsets.only(top: 15.0),
+              child: FlatButton(
+                  onPressed: () {
+                    setState(() {
+                      _addNeighbor = !_addNeighbor;
+                    });
+                  },
+                  child: Container(
+                    height: 45,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(40)),
+                    child: Center(
+                        child: Text(
+                      'Отменить',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.white,
+                      ),
+                    )),
+                  )),
+            ),
+          ],
+        ),
       ),
     );
   }

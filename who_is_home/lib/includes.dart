@@ -83,6 +83,19 @@ class UIComponent {
     );
   }
 
+  Widget _buildInputMail(String label, String hint, defaultvalue, event) =>
+      Padding(
+          padding: EdgeInsets.only(bottom: 15),
+          child: TextFormField(
+            controller: TextEditingController.fromValue(
+                TextEditingValue(text: defaultvalue)),
+            validator: emailValidate,
+            keyboardType: TextInputType.emailAddress,
+            decoration: inputDecoration(label: label, hint: hint),
+            onChanged: event,
+          ));
+
+
   //TODO: Validate text
   static String textValidate(String value) {
     if (value.isEmpty) {

@@ -75,7 +75,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           });
                         },
                       ),
-                    )
+                    ),
+                    Container(
+                      height: 60,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(40)),
+                      child: TextFormField(
+                        validator: UIComponent.textValidate,
+                        decoration: UIComponent.inputDecoration(
+                            label: 'Код устройства', hint: 'Введите код, указанный на устройстве'),
+                        onSaved: (value) {
+                          setState(() {
+                            _name = value;
+                          });
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -110,7 +126,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       color: Colors.white,
                     ),
                   )),
-                )),
+                )
+            ),
           ]),
     );
   }
