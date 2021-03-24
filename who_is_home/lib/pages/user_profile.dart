@@ -11,7 +11,7 @@ class userProfilePage extends StatefulWidget {
 }
 
 class _userProfilePageState extends State<userProfilePage> {
-  String _name;
+  String _name = 'username';
   bool _visibleProgress = false,
       _roomFree = true,
       _addNeighbor = false,
@@ -44,7 +44,7 @@ class _userProfilePageState extends State<userProfilePage> {
                             Padding(
                                 padding: EdgeInsets.only(left: 15),
                                 child: Text(
-                                  'Профиль',
+                                  _name,
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 20),
                                 )),
@@ -89,70 +89,86 @@ class _userProfilePageState extends State<userProfilePage> {
                       height: 500,
                       child: Center(
                           child: Text(
-                        _roomFree ? 'Свободно' : 'Занято',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 40,
-                        ),
-                      )),
+                            _roomFree ? 'Свободно' : 'Занято',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 40,
+                            ),
+                          )),
                     ),
                   ),
                 ],
               ),
               Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 0, 15, 5),
-                    child: FlatButton(
-                        onPressed: () {
-                          setState(() {
-                            _showNeighbours = !_showNeighbours;
-                          });
-                        },
-                        child: Container(
-                          height: 65,
-                          decoration: BoxDecoration(
-                              color: Colors.lightBlue,
-                              borderRadius: BorderRadius.circular(40)),
-                          child: Center(
-                              child: Text(
-                            'Соседи',
-                            style: TextStyle(
-                              fontSize: 22,
-                              color: Colors.white,
-                            ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: FlatButton(
+                          onPressed: () {
+                            setState(() {
+                              _showNeighbours = !_showNeighbours;
+                            });
+                          },
+                          child: Container(
+                            height: 65,
+                            decoration: BoxDecoration(
+                                color: Colors.lightBlue,
+                                borderRadius: BorderRadius.circular(40)),
+                            child: Center(
+                                child: Text(
+                                  'Соседи',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    color: Colors.white,
+                                  ),
+                                )),
                           )),
-                        )),
+                    ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 5),
-                    child: FlatButton(
-                        onPressed: () {
-                          setState(() {
-                            _roomFree = !_roomFree;
-                          });
-                        },
-                        child: Container(
-                          height: 65,
-                          decoration: BoxDecoration(
-                              color: Colors.lightBlue,
-                              borderRadius: BorderRadius.circular(40)),
-                          child: Center(
-                              child: Text(
-                            _roomFree ? 'Вернулся' : 'Ухожу',
-                            style: TextStyle(
-                              fontSize: 22,
-                              color: Colors.white,
-                            ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: FlatButton(
+                          onPressed: () {
+                            setState(() {
+                              _roomFree = !_roomFree;
+                            });
+                          },
+                          child: Container(
+                            height: 65,
+                            decoration: BoxDecoration(
+                                color: Colors.lightBlue,
+                                borderRadius: BorderRadius.circular(40)),
+                            child: Center(
+                                child: Text(
+                                  _roomFree ? 'Вернулся' : 'Ухожу',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    color: Colors.white,
+                                  ),
+                                )),
                           )),
-                        )),
+                    ),
                   ),
                 ],
               ),
             ],
           ),
+          greyBackground(),
           neighbourList(),
         ],
+      ),
+    );
+  }
+
+  Widget greyBackground(){
+    return Visibility(
+      visible: _showNeighbours,
+      child: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.grey[800].withOpacity(0.7),
       ),
     );
   }
@@ -165,12 +181,32 @@ class _userProfilePageState extends State<userProfilePage> {
           padding: const EdgeInsets.all(15),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white, 
+              color: Colors.white,
               borderRadius: BorderRadius.circular(15),
             ),
             child: ListView(
               shrinkWrap: true,
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 5),
+                      child: Text('Ваши соседи',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    IconButton(
+                        icon: Icon(Icons.cancel_outlined),
+                        onPressed: () {
+                          setState(() {
+                            _showNeighbours = !_showNeighbours;
+                          });
+                    }
+                    ),
+                  ],
+                ),
+
                 // TODO: Это уродство тут временно. Нужно что-то придумать с дизайном. ИСПРАВЛЯТЬ В ПОСЛЕДНЮЮ ОЧЕРЕДЬ!
                 //  Пока оставлю.
                 // TODO: Сюда передавать готовый список соседей. Его формировать в отдельтном методе, который вызывается в setState(). Список формируется после получения инфы с сервера
@@ -254,28 +290,31 @@ class _userProfilePageState extends State<userProfilePage> {
                     addNeighbour(),
                     Visibility(
                       visible: !_addNeighbor,
-                      child: FlatButton(
-                          onPressed: () {
-                            setState(() {
-                              _addNeighbor = !_addNeighbor;
-                            });
-                          },
-                          child: Container(
-                            height: 45,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                                color: Colors.lightBlue,
-                                borderRadius: BorderRadius.circular(40)),
-                            child: Center(
-                                child: Text(
-                                  'Добавить соседа',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    color: Colors.white,
-                                  ),
-                                )
-                            ),
-                          )
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 10, top: 10),
+                        child: FlatButton(
+                            onPressed: () {
+                              setState(() {
+                                _addNeighbor = !_addNeighbor;
+                              });
+                            },
+                            child: Container(
+                              height: 45,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                  color: Colors.lightBlue,
+                                  borderRadius: BorderRadius.circular(40)),
+                              child: Center(
+                                  child: Text(
+                                    'Добавить соседа',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                              ),
+                            )
+                        ),
                       ),
                     )
                   ],
@@ -300,7 +339,7 @@ class _userProfilePageState extends State<userProfilePage> {
               height: 60,
               width: double.infinity,
               decoration:
-                  BoxDecoration(borderRadius: BorderRadius.circular(40)),
+              BoxDecoration(borderRadius: BorderRadius.circular(40)),
               child: TextFormField(
                 validator: UIComponent.emailValidate,
                 decoration: UIComponent.inputDecoration(
@@ -326,12 +365,12 @@ class _userProfilePageState extends State<userProfilePage> {
                       borderRadius: BorderRadius.circular(40)),
                   child: Center(
                       child: Text(
-                    'Отправить приглашение!',
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Colors.white,
-                    ),
-                  )),
+                        'Отправить приглашение!',
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.white,
+                        ),
+                      )),
                 )),
             Padding(
               padding: const EdgeInsets.only(top: 15.0),
@@ -349,12 +388,12 @@ class _userProfilePageState extends State<userProfilePage> {
                         borderRadius: BorderRadius.circular(40)),
                     child: Center(
                         child: Text(
-                      'Отменить',
-                      style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.white,
-                      ),
-                    )),
+                          'Отменить',
+                          style: TextStyle(
+                            fontSize: 22,
+                            color: Colors.white,
+                          ),
+                        )),
                   )),
             ),
           ],
