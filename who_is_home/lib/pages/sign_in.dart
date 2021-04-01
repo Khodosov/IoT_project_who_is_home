@@ -17,8 +17,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
 
   // Логика работы с файловой системой. =======================================
-  TextEditingController _controllerKeyMail, _controllerValueMail, _controllerKeyPassword,
-      _controllerValuePassword;
+ /* TextEditingController _controllerValueMail, _controllerValuePassword;
   bool _fileExists = false;
   File _filePath;
 
@@ -80,27 +79,53 @@ class _SignInScreenState extends State<SignInScreen> {
         // If encountering an error, return null
       }
     }
-  }
+  }*/
 
   @override
   void initState() {
     super.initState();
-    // Instantiate _controllerKey and _controllerValue
-    _controllerKeyMail = TextEditingController();
-    _controllerValueMail = TextEditingController();
-    _controllerKeyPassword = TextEditingController();
-    _controllerValuePassword = TextEditingController();
-    print('0. Initialized _json: $_json');
-    _readJson();
+    // Instantiate  _controllerValue
+    // _controllerValueMail = TextEditingController();
+    // _controllerValuePassword = TextEditingController();
+    // print('0. Initialized _json: $_json');
+    // _readJson();
   }
 
   @override
   void dispose() {
-    _controllerKeyMail.dispose();
-    _controllerValueMail.dispose();
-    _controllerKeyPassword.dispose();
-    _controllerValuePassword.dispose();
-    super.dispose();
+    // _controllerValueMail.dispose();
+    //  _controllerValuePassword.dispose();
+    // super.dispose();
+  }
+
+
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/userdata.txt');
+  }
+  Future<File> writeCounter(String name) async {
+    final file = await _localFile;
+
+    // Write the file.
+    return file.writeAsString('$name');
+  }
+  Future<String> readCounter() async {
+    try {
+      final file = await _localFile;
+
+      // Read the file.
+      String contents = await file.readAsString();
+
+      return contents;
+    } catch (e) {
+      // If encountering an error, return 0.
+      return 'пук';
+    }
   }
   // ==========================================================================
 
@@ -109,14 +134,6 @@ class _SignInScreenState extends State<SignInScreen> {
     return Scaffold(
       body: Stack(
         children: <Widget> [
-          /*Container(
-            width: double.infinity,
-            height: double.infinity,
-            child: FittedBox(
-              child: Image.asset('assets/images/guard_locked.jpg'),
-              fit: BoxFit.fill,
-            ),
-          ),*/
           Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Padding(
               padding: EdgeInsets.fromLTRB(15, 0, 15, 45),
@@ -131,12 +148,12 @@ class _SignInScreenState extends State<SignInScreen> {
                       decoration:
                       BoxDecoration(borderRadius: BorderRadius.circular(40)),
                       child: TextFormField(
-                        controller: _controllerValueMail,
                         validator: UIComponent.emailValidate,
                         decoration: UIComponent.inputDecoration(
                             label: 'Ваша почта', hint: 'Введите вочту'),
                         onSaved: (value) {
                           setState(() {
+                            //TODO: здесь добавть запись в файл
                             _name = value;
                           });
                         },
@@ -148,7 +165,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       decoration:
                       BoxDecoration(borderRadius: BorderRadius.circular(40)),
                       child: TextFormField(
-                        controller: _controllerValuePassword,
                         obscureText: _passwordVisible,
                         validator: UIComponent.passwordValidate,
                         decoration: UIComponent.inputDecorationPassword(
@@ -162,6 +178,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             }),
                         onSaved: (value) {
                           setState(() {
+                            //TODO: здесь добавть запись в файл
                             _password = value;
                           });
                         },
@@ -175,20 +192,10 @@ class _SignInScreenState extends State<SignInScreen> {
                 onPressed: () async {
                     if (_formKey.currentState.validate()) {
                       // TODO: set json data
-                      _writeJson(_controllerKeyMail.text, _controllerValueMail.text);
-                      _writeJson(_controllerKeyPassword.text, _controllerValuePassword.text);
-                      final file = await _localFile;
-                      _fileExists = await file.exists();
-                      //_fileName = file;
-
                       setState(() {});
-                      _controllerKeyMail.clear();
-                      _controllerValueMail.clear();
-                      _controllerKeyPassword.clear();
-                      _controllerValuePassword.clear();
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => userProfilePage()));
                     }
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => userProfilePage()));
                 },
                 child: Container(
                   height: 45,
