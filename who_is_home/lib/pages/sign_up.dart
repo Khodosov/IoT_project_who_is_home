@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:who_is_home/pages/user_profile.dart';
 
 import '../includes.dart';
@@ -9,9 +14,30 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  String _name, _password;
-  bool _passwordVisible = false, _visibleProgress;
+  String _email, _password, _id, json;
+  bool _passwordVisible = true, _is_in_home = false;
   final _formKey = GlobalKey<FormState>();
+
+
+  void updateUserJSON(String email, String password, int id) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final File userFile = File('${directory.path}/userdata.json');
+    String jsonUser = '{\n  "id" : "$id",\n  "email" : "$email",\n  "password" : "$password",\n  "is_in_home" : "true"\n}';
+    userFile.writeAsString(jsonUser);
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +50,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               padding: const EdgeInsets.only(bottom: 25),
               child: Text('Добро пожаловать!',
               style: TextStyle(
-                color: Colors.primaryBlack,
+                color: Colors.grey[900],
                 fontSize: 22,
               ),
               ),
@@ -47,7 +73,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             label: 'Ваша почта', hint: 'Введите вочту'),
                         onSaved: (value) {
                           setState(() {
-                            _name = value;
+                            _email = value;
                           });
                         },
                       ),
@@ -87,7 +113,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             label: 'Код устройства', hint: 'Введите код, указанный на устройстве'),
                         onSaved: (value) {
                           setState(() {
-                            _name = value;
+                            _id = value;
                           });
                         },
                       ),
@@ -96,21 +122,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ),
-            FlatButton(
+            TextButton(
                 onPressed: () {
                   setState(() {
+                    // TODO: set json data
                     if (_formKey.currentState.validate()) {
                       _formKey.currentState.save();
                       setState(() {
-                        _visibleProgress = true;
+                        // _visibleProgress = true;
+                        print(_email);
+                        print(_password);
+                        print(_id);
+                        updateUserJSON(_email, _password, int.parse(_id));
                       });
-                      // TODO: set json data
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => userProfilePage()));
                     }
                   });
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => userProfilePage()));
                 },
                 child: Container(
                   height: 45,

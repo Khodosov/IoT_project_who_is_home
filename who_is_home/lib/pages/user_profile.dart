@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:who_is_home/main.dart';
 import 'package:who_is_home/pages/user_profile_settings.dart';
 
@@ -11,11 +16,112 @@ class userProfilePage extends StatefulWidget {
 }
 
 class _userProfilePageState extends State<userProfilePage> {
-  String _name = 'username';
+  String _email, _password, _id;
+  String jsonUser =
+      '{\n  "id" : "",\n  "email" : "",\n  "password" : "",\n  "is_in_home" : ""\n}';
+  String jsonNeighbours =
+      '{\n  "neighbours": [\n   {\n     "email": "kek",\n     "is_in_home": "false"\n   },\n  ]\n}';
+  //String jsonNeighbours = '{\"neighbours\":[{\"email\":\"kek\",\"is_in_home\":\"false\"},{\"email\":\"lol\",\"is_in_home\":\"true\"},{\"email\":\"prikol\",\"is_in_home\":\"false\"}]}';
   bool _visibleProgress = false,
       _roomFree = true,
       _addNeighbor = false,
+      _is_in_home = false,
+      _is_in_home_temp = false,
       _showNeighbours = false;
+  List _neighboursInfo = [];
+
+  // Fetch content from the json file =========================================
+
+  // TODO: функции, отвечающие за формирование списка соседей НЕ реализованы. Необходимо их исправить, а после начать работу с http.
+  Future<void> readJSONNeighbours() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final File neighboursFile = File('${directory.path}/neighbours.json');
+    if (await neighboursFile.exists()) {
+      jsonNeighbours = await neighboursFile.readAsString();
+    } else {
+      neighboursFile.writeAsString(jsonNeighbours);
+    }
+    print(jsonNeighbours);
+    //final data = await json.decode(jsonNeighbours);
+    Map<String, dynamic> data = jsonDecode(jsonNeighbours);
+    setState(() {
+      _neighboursInfo = data["neighbours"];
+    });
+  }
+
+  List<Widget> neighboursListReadJson() {
+    List<Widget> result = [];
+    if (_neighboursInfo != null) {
+      for (int index = 0; index < _neighboursInfo.length; index++) {
+        result.add(Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Container(
+            height: 50,
+            width: double.infinity,
+            color: _roomFree ? Colors.green[400] : Colors.red[400],
+            child: ListTile(
+              title: Text(_neighboursInfo[index]["email"]),
+              subtitle: Text(_neighboursInfo[index]["is_in_home"]),
+            ),
+          ),
+        ));
+      }
+    }
+    return result;
+  }
+
+  // This function can read local files from device.
+  void readJSON() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final File userFile = File('${directory.path}/userdata.json');
+    if (await userFile.exists()) {
+      jsonUser = await userFile.readAsString();
+    } else {
+      userFile.writeAsString(jsonUser);
+    }
+    Map<String, dynamic> data = jsonDecode(jsonUser);
+    if (data["is_in_home"].compareTo('false') == 0) {
+      _is_in_home_temp = false;
+    } else {
+      _is_in_home_temp = true;
+    }
+    setState(() {
+      _email = data["email"];
+      _password = data["password"];
+      _id = data["id"];
+      _is_in_home = _is_in_home_temp;
+    });
+    // Reading neighbours list.
+    final File neighboursFile = File('${directory.path}/neighbours.json');
+    if (await neighboursFile.exists()) {
+      jsonNeighbours = await neighboursFile.readAsString();
+    } else {
+      neighboursFile.writeAsString(jsonNeighbours);
+    }
+  }
+
+  void deleteDataJSON() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final File userFile = File('${directory.path}/userdata.json');
+    userFile.writeAsString(
+        '{\n  "id" : "",\n  "email" : "",\n  "password" : "",\n  "is_in_home" : ""\n}');
+  }
+
+  // This code is not capable of reading from local documents directory. This is only for reading from assets
+  /*Future<void> readUserDataFromJSON() async {
+    final String response = await rootBundle.loadString('assets/data/userdata.json');
+    final data = await jsonUser.decode(response);
+    setState(() {
+      _email = data["email"];
+    });
+  }*/
+
+  @override
+  void initState() {
+    readJSON();
+    readJSONNeighbours();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +150,7 @@ class _userProfilePageState extends State<userProfilePage> {
                             Padding(
                                 padding: EdgeInsets.only(left: 15),
                                 child: Text(
-                                  _name,
+                                  _email,
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 20),
                                 )),
@@ -70,6 +176,7 @@ class _userProfilePageState extends State<userProfilePage> {
                               size: 30,
                             ),
                             onPressed: () {
+                              deleteDataJSON();
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -89,12 +196,12 @@ class _userProfilePageState extends State<userProfilePage> {
                       height: 500,
                       child: Center(
                           child: Text(
-                            _roomFree ? 'Свободно' : 'Занято',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 40,
-                            ),
-                          )),
+                        _roomFree ? 'Свободно' : 'Занято',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 40,
+                        ),
+                      )),
                     ),
                   ),
                 ],
@@ -104,8 +211,10 @@ class _userProfilePageState extends State<userProfilePage> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: FlatButton(
+                      child: TextButton(
                           onPressed: () {
+                            readJSON();
+                            print(_neighboursInfo);
                             setState(() {
                               _showNeighbours = !_showNeighbours;
                             });
@@ -117,19 +226,19 @@ class _userProfilePageState extends State<userProfilePage> {
                                 borderRadius: BorderRadius.circular(40)),
                             child: Center(
                                 child: Text(
-                                  'Соседи',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    color: Colors.white,
-                                  ),
-                                )),
+                              'Соседи',
+                              style: TextStyle(
+                                fontSize: 22,
+                                color: Colors.white,
+                              ),
+                            )),
                           )),
                     ),
                   ),
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: FlatButton(
+                      child: TextButton(
                           onPressed: () {
                             setState(() {
                               _roomFree = !_roomFree;
@@ -142,12 +251,12 @@ class _userProfilePageState extends State<userProfilePage> {
                                 borderRadius: BorderRadius.circular(40)),
                             child: Center(
                                 child: Text(
-                                  _roomFree ? 'Вернулся' : 'Ухожу',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    color: Colors.white,
-                                  ),
-                                )),
+                              _roomFree ? 'Вернулся' : 'Ухожу',
+                              style: TextStyle(
+                                fontSize: 22,
+                                color: Colors.white,
+                              ),
+                            )),
                           )),
                     ),
                   ),
@@ -162,7 +271,7 @@ class _userProfilePageState extends State<userProfilePage> {
     );
   }
 
-  Widget greyBackground(){
+  Widget greyBackground() {
     return Visibility(
       visible: _showNeighbours,
       child: Container(
@@ -192,8 +301,10 @@ class _userProfilePageState extends State<userProfilePage> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 5),
-                      child: Text('Ваши соседи',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                      child: Text(
+                        'Ваши соседи',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w700),
                       ),
                     ),
                     IconButton(
@@ -202,88 +313,14 @@ class _userProfilePageState extends State<userProfilePage> {
                           setState(() {
                             _showNeighbours = !_showNeighbours;
                           });
-                    }
-                    ),
+                        }),
                   ],
                 ),
-
                 // TODO: Это уродство тут временно. Нужно что-то придумать с дизайном. ИСПРАВЛЯТЬ В ПОСЛЕДНЮЮ ОЧЕРЕДЬ!
                 //  Пока оставлю.
                 // TODO: Сюда передавать готовый список соседей. Его формировать в отдельтном методе, который вызывается в setState(). Список формируется после получения инфы с сервера
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
-                  child: Container(
-                    height: 50,
-                    width: double.infinity,
-                    color: _roomFree ? Colors.green[400] : Colors.red[400],
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Name1'),
-                        Text(!_roomFree ? 'Дома' : 'Не дома')
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Container(
-                    height: 50,
-                    width: double.infinity,
-                    color: _roomFree ? Colors.green[400] : Colors.red[400],
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Name2'),
-                        Text(!_roomFree ? 'Дома' : 'Не дома')
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Container(
-                    height: 50,
-                    width: double.infinity,
-                    color: _roomFree ? Colors.green[400] : Colors.red[400],
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Name3'),
-                        Text(!_roomFree ? 'Дома' : 'Не дома')
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Container(
-                    height: 50,
-                    width: double.infinity,
-                    color: _roomFree ? Colors.green[400] : Colors.red[400],
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Name4'),
-                        Text(!_roomFree ? 'Дома' : 'Не дома')
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Container(
-                    height: 50,
-                    width: double.infinity,
-                    color: _roomFree ? Colors.green[400] : Colors.red[400],
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Name5'),
-                        Text(!_roomFree ? 'Дома' : 'Не дома')
-                      ],
-                    ),
-                  ),
+                Column(
+                  children: neighboursListReadJson(),
                 ),
                 Stack(
                   children: [
@@ -292,7 +329,7 @@ class _userProfilePageState extends State<userProfilePage> {
                       visible: !_addNeighbor,
                       child: Padding(
                         padding: EdgeInsets.only(bottom: 10, top: 10),
-                        child: FlatButton(
+                        child: TextButton(
                             onPressed: () {
                               setState(() {
                                 _addNeighbor = !_addNeighbor;
@@ -306,15 +343,13 @@ class _userProfilePageState extends State<userProfilePage> {
                                   borderRadius: BorderRadius.circular(40)),
                               child: Center(
                                   child: Text(
-                                    'Добавить соседа',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                              ),
-                            )
-                        ),
+                                'Добавить соседа',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  color: Colors.white,
+                                ),
+                              )),
+                            )),
                       ),
                     )
                   ],
@@ -339,19 +374,19 @@ class _userProfilePageState extends State<userProfilePage> {
               height: 60,
               width: double.infinity,
               decoration:
-              BoxDecoration(borderRadius: BorderRadius.circular(40)),
+                  BoxDecoration(borderRadius: BorderRadius.circular(40)),
               child: TextFormField(
                 validator: UIComponent.emailValidate,
                 decoration: UIComponent.inputDecoration(
                     label: 'Почта вашего соседа', hint: 'Введите вочту'),
                 onSaved: (value) {
                   setState(() {
-                    _name = value;
+                    _email = value;
                   });
                 },
               ),
             ),
-            FlatButton(
+            TextButton(
                 onPressed: () {
                   setState(() {
                     _addNeighbor = !_addNeighbor;
@@ -365,12 +400,12 @@ class _userProfilePageState extends State<userProfilePage> {
                       borderRadius: BorderRadius.circular(40)),
                   child: Center(
                       child: Text(
-                        'Отправить приглашение!',
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: Colors.white,
-                        ),
-                      )),
+                    'Отправить приглашение!',
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.white,
+                    ),
+                  )),
                 )),
             Padding(
               padding: const EdgeInsets.only(top: 15.0),
@@ -388,12 +423,12 @@ class _userProfilePageState extends State<userProfilePage> {
                         borderRadius: BorderRadius.circular(40)),
                     child: Center(
                         child: Text(
-                          'Отменить',
-                          style: TextStyle(
-                            fontSize: 22,
-                            color: Colors.white,
-                          ),
-                        )),
+                      'Отменить',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.white,
+                      ),
+                    )),
                   )),
             ),
           ],

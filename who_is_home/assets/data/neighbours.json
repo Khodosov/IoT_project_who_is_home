@@ -1,0 +1,16 @@
+{
+  "neighbours": [
+    {
+      "email": "kek",
+      "is_in_home": "false"
+    },
+    {
+      "email": "lol",
+      "is_in_home": "true"
+    },
+    {
+      "email": "prikol",
+      "is_in_home": "false"
+    }
+  ]
+}

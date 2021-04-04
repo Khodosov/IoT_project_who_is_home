@@ -6,9 +6,7 @@ import 'package:who_is_home/pages/sign_up.dart';
 void main() => runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Who is home?',
-      theme: ThemeData(
-        primarySwatch: Colors.primaryBlack,
-      ),
+      theme: ThemeData(),
       home: MyApp(),
     ));
 
@@ -42,7 +40,7 @@ class _MyAppState extends State<MyApp> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 15),
-                child: FlatButton(
+                child: TextButton(
                     onPressed: () {
                       Navigator.push(
                           context,
@@ -68,7 +66,7 @@ class _MyAppState extends State<MyApp> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 15),
-                child: FlatButton(
+                child: TextButton(
                     onPressed: () {
                       Navigator.push(
                           context,
