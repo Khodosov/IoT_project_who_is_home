@@ -19,10 +19,19 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   String _email, _password, _id;
   bool _passwordVisible = true, _is_in_home = false;
+  bool _requestSucceed = false;
+  bool _allreadyExist = false;
   final _formKey = GlobalKey<FormState>();
-  String _url = 'http://http://127.0.0.1:5000';
 
-  void updateUserJSON(String email, String password, int id) async {
+  // Ссылка на сервер. К ней нужно прибавть /register + POST + формат jsona на скрине - регистрация
+  //
+  // /login + POST + тот же json, только без id - вход
+  //
+  // /neighbours - список соседей
+  String _url = 'http://lemonl1me.pythonanywhere.com';
+
+  // ==========================================================================
+  void updateUserJSON(int id, String email, String password) async {
     final directory = await getApplicationDocumentsDirectory();
     final File userFile = File('${directory.path}/userdata.json');
     String jsonUser =
@@ -30,13 +39,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
     userFile.writeAsString(jsonUser);
   }
 
-  Future<void> registrationRequest(String id, String email, String password) async {
-    Map<String, String> headers = {"Content-type": "application/json", "accept" : "application/json"};
+  Future<void> registrationRequest(
+      String id, String email, String password) async {
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+      "accept": "application/json"
+    };
     String json = '{"id": "$id", "email": "$email", "password": "$password"}';
-    Response response = await post(Uri.parse("$_url/register"), headers: headers, body: json);
+    Response response =
+        await post(Uri.parse("$_url/register"), headers: headers, body: json);
     int statusCode = response.statusCode;
     print('CONNECTION...');
     print(response.body);
+    print("Status Code:" + statusCode.toString());
+    if (statusCode == 201) {
+      setState(() {
+        _requestSucceed = true;
+      });
+    }
+    if (statusCode == 400){
+      setState(() {
+        _allreadyExist = true;
+      });
+    }
+    if (_requestSucceed) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => userProfilePage()));
+    }
   }
 
   @override
@@ -145,13 +174,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         print(_email);
                         print(_password);
                         print(_id);
-                        updateUserJSON(_email, _password, int.parse(_id));
+                        updateUserJSON(int.parse(_id), _email, _password);
                         registrationRequest(_id, _email, _password);
                       });
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => userProfilePage()));
                     }
                   });
                 },
@@ -169,7 +194,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       color: Colors.white,
                     ),
                   )),
-                )),
+                )
+            ),
+            Visibility(
+              visible: _allreadyExist,
+              child: Text("Аккаунт с введёнными данными уже существует",
+                style: TextStyle(color: Colors.red),
+              )
+            )
           ]),
     );
   }

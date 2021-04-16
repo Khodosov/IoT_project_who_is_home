@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:who_is_home/includes.dart';
 import 'package:who_is_home/pages/user_profile.dart';
@@ -11,12 +12,53 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  String _name, _password;
-  bool _passwordVisible = true, _loginError, _visibleProgress;
+  String _email, _password;
+  bool _passwordVisible = true;
   final _formKey = GlobalKey<FormState>();
-
+  String _url = 'http://lemonl1me.pythonanywhere.com';
+  bool _requestSucceed = false;
+  bool _doesNotExist = false;
 
   // Логика работы с файловой системой. =======================================
+  void updateUserJSON(int id, String email, String password) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final File userFile = File('${directory.path}/userdata.json');
+    String jsonUser =
+        '{\n  "id" : "$id",\n  "email" : "$email",\n  "password" : "$password",\n  "is_in_home" : "true"\n}';
+    userFile.writeAsString(jsonUser);
+  }
+
+  // Работа с сетью ===========================================================
+  Future<void> loginRequest(String email, String password) async {
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+      "accept": "application/json"
+    };
+    String json = '{"email": "$email", "password": "$password"}';
+    Response response =
+    await post(Uri.parse("$_url/login"), headers: headers, body: json);
+    int statusCode = response.statusCode;
+    print('CONNECTION...');
+    print(response.body);
+    print("Status Code:" + statusCode.toString());
+    if (statusCode == 201) {
+      setState(() {
+        _requestSucceed = true;
+        updateUserJSON(0, _email, _password);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => userProfilePage()));
+      });
+    }
+    if (statusCode == 400){
+      setState(() {
+        _doesNotExist = true;
+      });
+    }
+    if (_requestSucceed) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => userProfilePage()));
+    }
+  }
 
   // ==========================================================================
 
@@ -31,34 +73,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
 
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
 
-    return directory.path;
-  }
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/userdata.json');
-  }
-  Future<File> writeCounter(String name) async {
-    final file = await _localFile;
-
-    // Write the file.
-    return file.writeAsString('$name');
-  }
-  Future<String> readCounter() async {
-    try {
-      final file = await _localFile;
-
-      // Read the file.
-      String contents = await file.readAsString();
-
-      return contents;
-    } catch (e) {
-      // If encountering an error, return 0.
-      return 'пук';
-    }
-  }
   // ==========================================================================
 
   @override
@@ -77,16 +92,15 @@ class _SignInScreenState extends State<SignInScreen> {
                     Container(
                       height: 60,
                       width: double.infinity,
-                      decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(40)),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(40)),
                       child: TextFormField(
                         validator: UIComponent.emailValidate,
                         decoration: UIComponent.inputDecoration(
                             label: 'Ваша почта', hint: 'Введите вочту'),
                         onSaved: (value) {
                           setState(() {
-                            //TODO: здесь добавть запись в файл
-                            _name = value;
+                            _email = value;
                           });
                         },
                       ),
@@ -94,8 +108,8 @@ class _SignInScreenState extends State<SignInScreen> {
                     Container(
                       height: 60,
                       width: double.infinity,
-                      decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(40)),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(40)),
                       child: TextFormField(
                         obscureText: _passwordVisible,
                         validator: UIComponent.passwordValidate,
@@ -110,7 +124,6 @@ class _SignInScreenState extends State<SignInScreen> {
                             }),
                         onSaved: (value) {
                           setState(() {
-                            //TODO: здесь добавть запись в файл
                             _password = value;
                           });
                         },
@@ -120,13 +133,22 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
               ),
             ),
+            Visibility(
+                visible: _doesNotExist,
+                child: Text("Почта или пароль введены неверно",
+                  style: TextStyle(color: Colors.red),
+                )
+            ),
             TextButton(
                 onPressed: () async {
                     if (_formKey.currentState.validate()) {
+                      _formKey.currentState.save();
                       // TODO: set json data
-                      setState(() {});
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => userProfilePage()));
+                      setState(() {
+                        print(_email);
+                        print(_password);
+                        loginRequest(_email, _password);
+                      });
                     }
                 },
                 child: Container(

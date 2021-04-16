@@ -4,9 +4,11 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:who_is_home/main.dart';
 import 'package:who_is_home/pages/user_profile_settings.dart';
+import 'package:who_is_home/data.dart';
 
 import '../includes.dart';
 
@@ -24,28 +26,30 @@ class _userProfilePageState extends State<userProfilePage>
   String jsonNeighbours =
       '{\n  "neighbours": [\n   {\n     "email": "kek",\n     "is_in_home": "false"\n   },\n  ]\n}';
 
-  //String jsonNeighbours = '{\"neighbours\":[{\"email\":\"kek\",\"is_in_home\":\"false\"},{\"email\":\"lol\",\"is_in_home\":\"true\"},{\"email\":\"prikol\",\"is_in_home\":\"false\"}]}';
   bool _visibleProgress = true,
-      _roomFree = true,
       _addNeighbor = false,
       _is_in_home = false,
       _is_in_home_temp = false,
       _showNeighbours = false;
+
+  List<bool> _roommatesCurrentStateList = [];
+  bool  _roomIsFree = false;
   List _neighboursInfo = [];
 
+  String _url = 'http://lemonl1me.pythonanywhere.com';
   // Fetch content from the json file =========================================
 
   // TODO: функции, отвечающие за формирование списка соседей НЕ реализованы. Необходимо их исправить, а после начать работу с http.
-  Future<void> readJSONNeighbours() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final File neighboursFile = File('${directory.path}/neighbours.json');
-    if (await neighboursFile.exists()) {
-      jsonNeighbours = await neighboursFile.readAsString();
-    } else {
-      neighboursFile.writeAsString(jsonNeighbours);
-    }
+  Future<void> fetchJsonNeighbours() async {
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+      "accept": "application/json"
+    };
+    Response response = await get(Uri.parse("$_url/neighbours"), headers: headers);
+    int statusCode = response.statusCode;
+    print('FETCHING NEIGHBOURS DATA STATUS CODE : ' + response.statusCode.toString());
+    jsonNeighbours = response.body;
     print(jsonNeighbours);
-    //final data = await json.decode(jsonNeighbours);
     Map<String, dynamic> data = jsonDecode(jsonNeighbours);
     setState(() {
       print('Файл JSON neighboursdata.json' + data.toString());
@@ -56,6 +60,12 @@ class _userProfilePageState extends State<userProfilePage>
 
   List<Widget> neighboursListReadJson() {
     List<Widget> result = [];
+    for (int index = 0; index < _neighboursInfo.length; index++){
+      if (_neighboursInfo[index]["is_in_home"]){
+        _roommatesCurrentStateList.add(false);
+        _roomIsFree = false;
+      }else {_roommatesCurrentStateList.add(true);}
+    }
     if (_neighboursInfo != null) {
       for (int index = 0; index < _neighboursInfo.length; index++) {
         result.add(Padding(
@@ -63,10 +73,10 @@ class _userProfilePageState extends State<userProfilePage>
           child: Container(
             height: 50,
             width: double.infinity,
-            color: _roomFree ? Colors.green[400] : Colors.red[400],
+            color: _roommatesCurrentStateList[index] ? Colors.green[400] : Colors.red[400],
             child: ListTile(
-              title: Text(_neighboursInfo[index]["email"]),
-              subtitle: Text(_neighboursInfo[index]["is_in_home"]),
+              title: Text(_neighboursInfo[index]["is_in_home"] ? 'Дома' : 'Не дома'),
+              subtitle: Text(_neighboursInfo[index]["name"]),
             ),
           ),
         ));
@@ -113,15 +123,6 @@ class _userProfilePageState extends State<userProfilePage>
         '{\n  "id" : "",\n  "email" : "",\n  "password" : "",\n  "is_in_home" : ""\n}');
   }
 
-  // This code is not capable of reading from local documents directory. This is only for reading from assets
-  /*Future<void> readUserDataFromJSON() async {
-    final String response = await rootBundle.loadString('assets/data/userdata.json');
-    final data = await jsonUser.decode(response);
-    setState(() {
-      _email = data["email"];
-    });
-  }*/
-
   @override
   void initState() {
     // Code for Circular Progress
@@ -134,7 +135,7 @@ class _userProfilePageState extends State<userProfilePage>
     controller.repeat(reverse: true);
 
     readJSON();
-    //readJSONNeighbours();
+    fetchJsonNeighbours();
     super.initState();
   }
 
@@ -210,13 +211,13 @@ class _userProfilePageState extends State<userProfilePage>
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(40),
-                              color: _roomFree ? Colors.green : Colors.red,
+                              color: _roomIsFree ? Colors.green : Colors.red,
                             ),
                             width: double.infinity,
                             height: 500,
                             child: Center(
                                 child: Text(
-                              _roomFree ? 'Свободно' : 'Занято',
+                                  _roomIsFree ? 'Свободно' : 'Занято',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 40,
@@ -260,9 +261,8 @@ class _userProfilePageState extends State<userProfilePage>
                             padding: const EdgeInsets.only(bottom: 10),
                             child: TextButton(
                                 onPressed: () {
-                                  setState(() {
-                                    _roomFree = !_roomFree;
-                                  });
+                                  // TODO: Сделать отправку на сервер сообщение об изменении состояния пользователя.
+                                  setState(() {});
                                 },
                                 child: Container(
                                   height: 65,
@@ -271,7 +271,7 @@ class _userProfilePageState extends State<userProfilePage>
                                       borderRadius: BorderRadius.circular(40)),
                                   child: Center(
                                       child: Text(
-                                    _roomFree ? 'Вернулся' : 'Ухожу',
+                                        _roomIsFree ? 'Вернулся' : 'Ухожу',
                                     style: TextStyle(
                                       fontSize: 22,
                                       color: Colors.white,
