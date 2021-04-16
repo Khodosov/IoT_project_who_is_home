@@ -15,14 +15,17 @@ class userProfilePage extends StatefulWidget {
   _userProfilePageState createState() => _userProfilePageState();
 }
 
-class _userProfilePageState extends State<userProfilePage> {
+class _userProfilePageState extends State<userProfilePage>
+    with TickerProviderStateMixin {
+  AnimationController controller;
   String _email, _password, _id;
   String jsonUser =
       '{\n  "id" : "",\n  "email" : "",\n  "password" : "",\n  "is_in_home" : ""\n}';
   String jsonNeighbours =
       '{\n  "neighbours": [\n   {\n     "email": "kek",\n     "is_in_home": "false"\n   },\n  ]\n}';
+
   //String jsonNeighbours = '{\"neighbours\":[{\"email\":\"kek\",\"is_in_home\":\"false\"},{\"email\":\"lol\",\"is_in_home\":\"true\"},{\"email\":\"prikol\",\"is_in_home\":\"false\"}]}';
-  bool _visibleProgress = false,
+  bool _visibleProgress = true,
       _roomFree = true,
       _addNeighbor = false,
       _is_in_home = false,
@@ -45,7 +48,9 @@ class _userProfilePageState extends State<userProfilePage> {
     //final data = await json.decode(jsonNeighbours);
     Map<String, dynamic> data = jsonDecode(jsonNeighbours);
     setState(() {
+      print('Файл JSON neighboursdata.json' + data.toString());
       _neighboursInfo = data["neighbours"];
+      print(_neighboursInfo);
     });
   }
 
@@ -98,6 +103,7 @@ class _userProfilePageState extends State<userProfilePage> {
     } else {
       neighboursFile.writeAsString(jsonNeighbours);
     }
+    _visibleProgress = false;
   }
 
   void deleteDataJSON() async {
@@ -118,8 +124,17 @@ class _userProfilePageState extends State<userProfilePage> {
 
   @override
   void initState() {
+    // Code for Circular Progress
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    )..addListener(() {
+        setState(() {});
+      });
+    controller.repeat(reverse: true);
+
     readJSON();
-    readJSONNeighbours();
+    //readJSONNeighbours();
     super.initState();
   }
 
@@ -127,147 +142,152 @@ class _userProfilePageState extends State<userProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                children: [
-                  Container(
-                    height: 80,
-                    decoration: BoxDecoration(
-                        color: Colors.lightBlue,
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(15),
-                            bottomRight: Radius.circular(15))),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: _visibleProgress
+          ? Visibility(
+              child: CircularProgressIndicator(
+              value: controller.value,
+            ))
+          : Stack(
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
                       children: [
-                        Row(
-                          children: [
-                            Padding(
-                                padding: EdgeInsets.only(left: 15),
-                                child: Text(
-                                  _email,
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 20),
-                                )),
-                            IconButton(
-                                color: Colors.lightBlue,
-                                icon: Icon(
-                                  Icons.edit,
-                                  size: 20,
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              userProfileSettingsPage()));
-                                })
-                          ],
+                        Container(
+                          height: 80,
+                          decoration: BoxDecoration(
+                              color: Colors.lightBlue,
+                              borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(15),
+                                  bottomRight: Radius.circular(15))),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Padding(
+                                      padding: EdgeInsets.only(left: 15),
+                                      child: Text(
+                                        _email,
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 20),
+                                      )),
+                                  IconButton(
+                                      color: Colors.lightBlue,
+                                      icon: Icon(
+                                        Icons.edit,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    userProfileSettingsPage()));
+                                      })
+                                ],
+                              ),
+                              IconButton(
+                                  color: Colors.white,
+                                  icon: Icon(
+                                    Icons.sensor_door_outlined,
+                                    size: 30,
+                                  ),
+                                  onPressed: () {
+                                    deleteDataJSON();
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => MyApp()));
+                                  })
+                            ],
+                          ),
                         ),
-                        IconButton(
-                            color: Colors.white,
-                            icon: Icon(
-                              Icons.sensor_door_outlined,
-                              size: 30,
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(40),
+                              color: _roomFree ? Colors.green : Colors.red,
                             ),
-                            onPressed: () {
-                              deleteDataJSON();
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => MyApp()));
-                            })
+                            width: double.infinity,
+                            height: 500,
+                            child: Center(
+                                child: Text(
+                              _roomFree ? 'Свободно' : 'Занято',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 40,
+                              ),
+                            )),
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(40),
-                        color: _roomFree ? Colors.green : Colors.red,
-                      ),
-                      width: double.infinity,
-                      height: 500,
-                      child: Center(
-                          child: Text(
-                        _roomFree ? 'Свободно' : 'Занято',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 40,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: TextButton(
+                                onPressed: () {
+                                  readJSON();
+                                  print(_neighboursInfo);
+                                  setState(() {
+                                    _showNeighbours = !_showNeighbours;
+                                  });
+                                },
+                                child: Container(
+                                  height: 65,
+                                  decoration: BoxDecoration(
+                                      color: Colors.lightBlue,
+                                      borderRadius: BorderRadius.circular(40)),
+                                  child: Center(
+                                      child: Text(
+                                    'Соседи',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      color: Colors.white,
+                                    ),
+                                  )),
+                                )),
+                          ),
                         ),
-                      )),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _roomFree = !_roomFree;
+                                  });
+                                },
+                                child: Container(
+                                  height: 65,
+                                  decoration: BoxDecoration(
+                                      color: Colors.lightBlue,
+                                      borderRadius: BorderRadius.circular(40)),
+                                  child: Center(
+                                      child: Text(
+                                    _roomFree ? 'Вернулся' : 'Ухожу',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      color: Colors.white,
+                                    ),
+                                  )),
+                                )),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: TextButton(
-                          onPressed: () {
-                            readJSON();
-                            print(_neighboursInfo);
-                            setState(() {
-                              _showNeighbours = !_showNeighbours;
-                            });
-                          },
-                          child: Container(
-                            height: 65,
-                            decoration: BoxDecoration(
-                                color: Colors.lightBlue,
-                                borderRadius: BorderRadius.circular(40)),
-                            child: Center(
-                                child: Text(
-                              'Соседи',
-                              style: TextStyle(
-                                fontSize: 22,
-                                color: Colors.white,
-                              ),
-                            )),
-                          )),
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _roomFree = !_roomFree;
-                            });
-                          },
-                          child: Container(
-                            height: 65,
-                            decoration: BoxDecoration(
-                                color: Colors.lightBlue,
-                                borderRadius: BorderRadius.circular(40)),
-                            child: Center(
-                                child: Text(
-                              _roomFree ? 'Вернулся' : 'Ухожу',
-                              style: TextStyle(
-                                fontSize: 22,
-                                color: Colors.white,
-                              ),
-                            )),
-                          )),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          greyBackground(),
-          neighbourList(),
-        ],
-      ),
+                  ],
+                ),
+                greyBackground(),
+                neighbourList(),
+              ],
+            ),
     );
   }
 
@@ -378,7 +398,7 @@ class _userProfilePageState extends State<userProfilePage> {
               child: TextFormField(
                 validator: UIComponent.emailValidate,
                 decoration: UIComponent.inputDecoration(
-                    label: 'Почта вашего соседа', hint: 'Введите вочту'),
+                    label: 'Почта вашего соседа', hint: 'Введите почту'),
                 onSaved: (value) {
                   setState(() {
                     _email = value;

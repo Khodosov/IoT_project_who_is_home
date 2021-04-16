@@ -3,8 +3,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:who_is_home/pages/user_profile.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../includes.dart';
 
@@ -14,18 +17,27 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  String _email, _password, _id, json;
+  String _email, _password, _id;
   bool _passwordVisible = true, _is_in_home = false;
   final _formKey = GlobalKey<FormState>();
-
+  String _url = 'http://http://127.0.0.1:5000';
 
   void updateUserJSON(String email, String password, int id) async {
     final directory = await getApplicationDocumentsDirectory();
     final File userFile = File('${directory.path}/userdata.json');
-    String jsonUser = '{\n  "id" : "$id",\n  "email" : "$email",\n  "password" : "$password",\n  "is_in_home" : "true"\n}';
+    String jsonUser =
+        '{\n  "id" : "$id",\n  "email" : "$email",\n  "password" : "$password",\n  "is_in_home" : "true"\n}';
     userFile.writeAsString(jsonUser);
   }
 
+  Future<void> registrationRequest(String id, String email, String password) async {
+    Map<String, String> headers = {"Content-type": "application/json", "accept" : "application/json"};
+    String json = '{"id": "$id", "email": "$email", "password": "$password"}';
+    Response response = await post(Uri.parse("$_url/register"), headers: headers, body: json);
+    int statusCode = response.statusCode;
+    print('CONNECTION...');
+    print(response.body);
+  }
 
   @override
   void initState() {
@@ -37,8 +49,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,11 +58,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 25),
-              child: Text('Добро пожаловать!',
-              style: TextStyle(
-                color: Colors.grey[900],
-                fontSize: 22,
-              ),
+              child: Text(
+                'Добро пожаловать!',
+                style: TextStyle(
+                  color: Colors.grey[900],
+                  fontSize: 22,
+                ),
               ),
             ),
             Padding(
@@ -110,7 +121,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       child: TextFormField(
                         validator: UIComponent.textValidate,
                         decoration: UIComponent.inputDecoration(
-                            label: 'Код устройства', hint: 'Введите код, указанный на устройстве'),
+                            label: 'Код устройства',
+                            hint: 'Введите код, указанный на устройстве'),
                         onSaved: (value) {
                           setState(() {
                             _id = value;
@@ -134,6 +146,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         print(_password);
                         print(_id);
                         updateUserJSON(_email, _password, int.parse(_id));
+                        registrationRequest(_id, _email, _password);
                       });
                       Navigator.push(
                           context,
@@ -156,8 +169,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       color: Colors.white,
                     ),
                   )),
-                )
-            ),
+                )),
           ]),
     );
   }
