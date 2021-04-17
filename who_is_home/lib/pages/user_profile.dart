@@ -28,64 +28,36 @@ class _userProfilePageState extends State<userProfilePage>
 
   bool _visibleProgress = true,
       _addNeighbor = false,
-      _is_in_home = false,
+      _am_i_in_home = false,
       _is_in_home_temp = false,
       _showNeighbours = false;
 
   List<bool> _roommatesCurrentStateList = [];
-  bool  _roomIsFree = false;
+  bool _roomIsFree = false;
   List _neighboursInfo = [];
 
   String _url = 'http://lemonl1me.pythonanywhere.com';
-  // Fetch content from the json file =========================================
 
-  // TODO: функции, отвечающие за формирование списка соседей НЕ реализованы. Необходимо их исправить, а после начать работу с http.
+  // Функции, отвечающие за получение, храненние и обработку информации =======
   Future<void> fetchJsonNeighbours() async {
     Map<String, String> headers = {
       "Content-type": "application/json",
       "accept": "application/json"
     };
-    Response response = await get(Uri.parse("$_url/neighbours"), headers: headers);
+    Response response =
+        await get(Uri.parse("$_url/neighbours"), headers: headers);
     int statusCode = response.statusCode;
-    print('FETCHING NEIGHBOURS DATA STATUS CODE : ' + response.statusCode.toString());
+    print('FETCHING NEIGHBOURS DATA STATUS CODE : ' +
+        response.statusCode.toString());
     jsonNeighbours = response.body;
-    print(jsonNeighbours);
     Map<String, dynamic> data = jsonDecode(jsonNeighbours);
     setState(() {
       print('Файл JSON neighboursdata.json' + data.toString());
       _neighboursInfo = data["neighbours"];
-      print(_neighboursInfo);
+      // print(_neighboursInfo);
     });
   }
 
-  List<Widget> neighboursListReadJson() {
-    List<Widget> result = [];
-    for (int index = 0; index < _neighboursInfo.length; index++){
-      if (_neighboursInfo[index]["is_in_home"]){
-        _roommatesCurrentStateList.add(false);
-        _roomIsFree = false;
-      }else {_roommatesCurrentStateList.add(true);}
-    }
-    if (_neighboursInfo != null) {
-      for (int index = 0; index < _neighboursInfo.length; index++) {
-        result.add(Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: Container(
-            height: 50,
-            width: double.infinity,
-            color: _roommatesCurrentStateList[index] ? Colors.green[400] : Colors.red[400],
-            child: ListTile(
-              title: Text(_neighboursInfo[index]["is_in_home"] ? 'Дома' : 'Не дома'),
-              subtitle: Text(_neighboursInfo[index]["name"]),
-            ),
-          ),
-        ));
-      }
-    }
-    return result;
-  }
-
-  // This function can read local files from device.
   void readJSON() async {
     final directory = await getApplicationDocumentsDirectory();
     final File userFile = File('${directory.path}/userdata.json');
@@ -104,7 +76,7 @@ class _userProfilePageState extends State<userProfilePage>
       _email = data["email"];
       _password = data["password"];
       _id = data["id"];
-      _is_in_home = _is_in_home_temp;
+      _roomIsFree = _is_in_home_temp;
     });
     // Reading neighbours list.
     final File neighboursFile = File('${directory.path}/neighbours.json');
@@ -123,6 +95,7 @@ class _userProfilePageState extends State<userProfilePage>
         '{\n  "id" : "",\n  "email" : "",\n  "password" : "",\n  "is_in_home" : ""\n}');
   }
 
+  // ==========================================================================
   @override
   void initState() {
     // Code for Circular Progress
@@ -141,154 +114,89 @@ class _userProfilePageState extends State<userProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: _visibleProgress
-          ? Visibility(
-              child: CircularProgressIndicator(
-              value: controller.value,
-            ))
-          : Stack(
+    // WillPopScope() позволяет изменить функциона кнопок навигации. Добавлено
+    // для того, чтобы не возникало ошибок при нажатии на них.
+    return WillPopScope(
+      onWillPop: () {},
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.white,
+        body: _visibleProgress
+            ? Visibility(
+                child: CircularProgressIndicator(
+                value: controller.value,
+              ))
+            : Stack(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      upperBar(),
+                      stateDisplay(),
+                      lowerButtons(),
+                    ],
+                  ),
+                  greyBackground(),
+                  neighbourList(),
+                ],
+              ),
+      ),
+    );
+  }
+
+  List<Widget> neighboursListBuilder() {
+    List<Widget> result = [];
+    for (int index = 0; index < _neighboursInfo.length; index++) {
+      if (_neighboursInfo[index]["is_in_home"]) {
+        _roommatesCurrentStateList.add(false);
+        _roomIsFree = false;
+      } else {
+        _roommatesCurrentStateList.add(true);
+      }
+    }
+    if (_neighboursInfo != null) {
+      for (int index = 0; index < _neighboursInfo.length; index++) {
+        result.add(Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Container(
+            height: 50,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: _roommatesCurrentStateList[index]
+                  ? Colors.green[400]
+                  : Colors.red[400],
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      children: [
-                        Container(
-                          height: 80,
-                          decoration: BoxDecoration(
-                              color: Colors.lightBlue,
-                              borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(15),
-                                  bottomRight: Radius.circular(15))),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Padding(
-                                      padding: EdgeInsets.only(left: 15),
-                                      child: Text(
-                                        _email,
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 20),
-                                      )),
-                                  IconButton(
-                                      color: Colors.lightBlue,
-                                      icon: Icon(
-                                        Icons.edit,
-                                        size: 20,
-                                      ),
-                                      onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    userProfileSettingsPage()));
-                                      })
-                                ],
-                              ),
-                              IconButton(
-                                  color: Colors.white,
-                                  icon: Icon(
-                                    Icons.sensor_door_outlined,
-                                    size: 30,
-                                  ),
-                                  onPressed: () {
-                                    deleteDataJSON();
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => MyApp()));
-                                  })
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(40),
-                              color: _roomIsFree ? Colors.green : Colors.red,
-                            ),
-                            width: double.infinity,
-                            height: 500,
-                            child: Center(
-                                child: Text(
-                                  _roomIsFree ? 'Свободно' : 'Занято',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 40,
-                              ),
-                            )),
-                          ),
-                        ),
-                      ],
+                Padding(
+                  padding: const EdgeInsets.only(left: 5),
+                  child: Text(
+                    _neighboursInfo[index]["name"],
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: TextButton(
-                                onPressed: () {
-                                  readJSON();
-                                  print(_neighboursInfo);
-                                  setState(() {
-                                    _showNeighbours = !_showNeighbours;
-                                  });
-                                },
-                                child: Container(
-                                  height: 65,
-                                  decoration: BoxDecoration(
-                                      color: Colors.lightBlue,
-                                      borderRadius: BorderRadius.circular(40)),
-                                  child: Center(
-                                      child: Text(
-                                    'Соседи',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      color: Colors.white,
-                                    ),
-                                  )),
-                                )),
-                          ),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: TextButton(
-                                onPressed: () {
-                                  // TODO: Сделать отправку на сервер сообщение об изменении состояния пользователя.
-                                  setState(() {});
-                                },
-                                child: Container(
-                                  height: 65,
-                                  decoration: BoxDecoration(
-                                      color: Colors.lightBlue,
-                                      borderRadius: BorderRadius.circular(40)),
-                                  child: Center(
-                                      child: Text(
-                                        _roomIsFree ? 'Вернулся' : 'Ухожу',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      color: Colors.white,
-                                    ),
-                                  )),
-                                )),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-                greyBackground(),
-                neighbourList(),
+                Padding(
+                  padding: const EdgeInsets.only(right: 5),
+                  child: Text(
+                    _neighboursInfo[index]["is_in_home"] ? 'Дома' : 'Не дома',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
               ],
             ),
-    );
+          ),
+        ));
+      }
+    }
+    return result;
   }
 
   Widget greyBackground() {
@@ -340,7 +248,7 @@ class _userProfilePageState extends State<userProfilePage>
                 //  Пока оставлю.
                 // TODO: Сюда передавать готовый список соседей. Его формировать в отдельтном методе, который вызывается в setState(). Список формируется после получения инфы с сервера
                 Column(
-                  children: neighboursListReadJson(),
+                  children: neighboursListBuilder(),
                 ),
                 Stack(
                   children: [
@@ -454,6 +362,139 @@ class _userProfilePageState extends State<userProfilePage>
           ],
         ),
       ),
+    );
+  }
+
+  Widget upperBar() {
+    return Container(
+      height: 80,
+      decoration: BoxDecoration(
+          color: Colors.lightBlue,
+          borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(15),
+              bottomRight: Radius.circular(15))),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Padding(
+                  padding: EdgeInsets.only(left: 15),
+                  child: Text(
+                    _email,
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  )),
+              // TODO: Сдедать редактирование профиля
+              IconButton(
+                  color: Colors.lightBlue,
+                  icon: Icon(
+                    Icons.edit,
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => userProfileSettingsPage()));
+                  })
+            ],
+          ),
+          IconButton(
+              color: Colors.white,
+              icon: Icon(
+                Icons.sensor_door_outlined,
+                size: 30,
+              ),
+              onPressed: () {
+                deleteDataJSON();
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => MyApp()));
+              })
+        ],
+      ),
+    );
+  }
+
+  Widget stateDisplay(){
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(40),
+          color: _roomIsFree ? Colors.green : Colors.red,
+        ),
+        width: double.infinity,
+        height: 500,
+        child: Center(
+            child: Text(
+              _roomIsFree ? 'Свободно' : 'Занято',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 40,
+              ),
+            )),
+      ),
+    );
+  }
+
+  Widget lowerButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: TextButton(
+                onPressed: () {
+                  readJSON();
+                  // print(_neighboursInfo);
+                  setState(() {
+                    _showNeighbours = !_showNeighbours;
+                  });
+                },
+                child: Container(
+                  height: 65,
+                  decoration: BoxDecoration(
+                      color: Colors.lightBlue,
+                      borderRadius: BorderRadius.circular(40)),
+                  child: Center(
+                      child: Text(
+                    'Соседи',
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.white,
+                    ),
+                  )),
+                )),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: TextButton(
+                onPressed: () {
+                  // TODO: Сделать отправку на сервер сообщение об изменении состояния пользователя.
+                  setState(() {
+                    _am_i_in_home = !_am_i_in_home;
+                  });
+                },
+                child: Container(
+                  height: 65,
+                  decoration: BoxDecoration(
+                      color: Colors.lightBlue,
+                      borderRadius: BorderRadius.circular(40)),
+                  child: Center(
+                      child: Text(
+                    _am_i_in_home ? 'Вернулся' : 'Ухожу',
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.white,
+                    ),
+                  )),
+                )),
+          ),
+        ),
+      ],
     );
   }
 }

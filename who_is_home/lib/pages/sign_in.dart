@@ -143,7 +143,6 @@ class _SignInScreenState extends State<SignInScreen> {
                 onPressed: () async {
                     if (_formKey.currentState.validate()) {
                       _formKey.currentState.save();
-                      // TODO: set json data
                       setState(() {
                         print(_email);
                         print(_password);
