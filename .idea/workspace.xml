@@ -4,6 +4,7 @@
     <list default="true" id="65912b54-a37f-4733-abdf-28eca1977b03" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/who_is_home/lib/pages/sign_in.dart" beforeDir="false" afterPath="$PROJECT_DIR$/who_is_home/lib/pages/sign_in.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/who_is_home/lib/pages/sign_up.dart" beforeDir="false" afterPath="$PROJECT_DIR$/who_is_home/lib/pages/sign_up.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/who_is_home/lib/pages/user_profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/who_is_home/lib/pages/user_profile.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -77,30 +78,30 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="414" y="195" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1080@0.0.1920.1080" timestamp="1618136711149" />
-    <state x="100" y="100" width="1257" height="880" key="AVDManager" timestamp="1618664893508">
+    <state x="100" y="100" width="1257" height="880" key="AVDManager" timestamp="1618910952914">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="100" y="100" width="1257" height="880" key="AVDManager/0.0.1920.1080@0.0.1920.1080" timestamp="1618664893508" />
+    <state x="100" y="100" width="1257" height="880" key="AVDManager/0.0.1920.1080@0.0.1920.1080" timestamp="1618910952914" />
     <state x="508" y="295" key="FileChooserDialogImpl" timestamp="1618136663845">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="508" y="295" key="FileChooserDialogImpl/0.0.1920.1080@0.0.1920.1080" timestamp="1618136663845" />
-    <state width="1877" height="99" key="GridCell.Tab.0.bottom" timestamp="1618668216946">
+    <state width="1877" height="45" key="GridCell.Tab.0.bottom" timestamp="1618928334718">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1877" height="99" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1618668216946" />
-    <state width="1877" height="99" key="GridCell.Tab.0.center" timestamp="1618668216946">
+    <state width="1877" height="45" key="GridCell.Tab.0.bottom/0.0.1920.1080@0.0.1920.1080" timestamp="1618928334718" />
+    <state width="1877" height="45" key="GridCell.Tab.0.center" timestamp="1618928334718">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1877" height="99" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1618668216946" />
-    <state width="1877" height="99" key="GridCell.Tab.0.left" timestamp="1618668216946">
+    <state width="1877" height="45" key="GridCell.Tab.0.center/0.0.1920.1080@0.0.1920.1080" timestamp="1618928334718" />
+    <state width="1877" height="45" key="GridCell.Tab.0.left" timestamp="1618928334718">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1877" height="99" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1618668216946" />
-    <state width="1877" height="99" key="GridCell.Tab.0.right" timestamp="1618668216946">
+    <state width="1877" height="45" key="GridCell.Tab.0.left/0.0.1920.1080@0.0.1920.1080" timestamp="1618928334718" />
+    <state width="1877" height="45" key="GridCell.Tab.0.right" timestamp="1618928334718">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state width="1877" height="99" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1618668216946" />
+    <state width="1877" height="45" key="GridCell.Tab.0.right/0.0.1920.1080@0.0.1920.1080" timestamp="1618928334718" />
     <state x="461" y="185" key="SettingsEditor" timestamp="1618136641996">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>

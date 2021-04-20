@@ -20,16 +20,15 @@ class userProfilePage extends StatefulWidget {
 class _userProfilePageState extends State<userProfilePage>
     with TickerProviderStateMixin {
   AnimationController controller;
-  String _email, _password, _id;
+  String _email, _password, _device_id, is_in_home_str;
   String jsonUser =
-      '{\n  "id" : "",\n  "email" : "",\n  "password" : "",\n  "is_in_home" : ""\n}';
+      '{\n  "device_id" : "",\n  "email" : "",\n  "password" : "",\n  "is_in_home" : ""\n}';
   String jsonNeighbours =
       '{\n  "neighbours": [\n   {\n     "email": "kek",\n     "is_in_home": "false"\n   },\n  ]\n}';
 
   bool _visibleProgress = true,
       _addNeighbor = false,
-      _am_i_in_home = false,
-      _is_in_home_temp = false,
+      _am_i_in_home,
       _showNeighbours = false;
 
   List<bool> _roommatesCurrentStateList = [];
@@ -39,20 +38,18 @@ class _userProfilePageState extends State<userProfilePage>
   String _url = 'http://lemonl1me.pythonanywhere.com';
 
   // Функции, отвечающие за получение, храненние и обработку информации =======
-  Future<void> fetchJsonNeighbours() async {
+  Future<void> fetchJsonNeighbours(String device_id) async {
     Map<String, String> headers = {
       "Content-type": "application/json",
       "accept": "application/json"
     };
     Response response =
-        await get(Uri.parse("$_url/neighbours"), headers: headers);
+        await get(Uri.parse("$_url/neighbours/$device_id"), headers: headers);
     int statusCode = response.statusCode;
-    print('FETCHING NEIGHBOURS DATA STATUS CODE : ' +
-        response.statusCode.toString());
+    print('FETCHING NEIGHBOURS DATA STATUS CODE : ' + statusCode.toString());
     jsonNeighbours = response.body;
     Map<String, dynamic> data = jsonDecode(jsonNeighbours);
     setState(() {
-      print('Файл JSON neighboursdata.json' + data.toString());
       _neighboursInfo = data["neighbours"];
       // print(_neighboursInfo);
     });
@@ -67,16 +64,15 @@ class _userProfilePageState extends State<userProfilePage>
       userFile.writeAsString(jsonUser);
     }
     Map<String, dynamic> data = jsonDecode(jsonUser);
-    if (data["is_in_home"].compareTo('false') == 0) {
-      _is_in_home_temp = false;
-    } else {
-      _is_in_home_temp = true;
-    }
     setState(() {
       _email = data["email"];
       _password = data["password"];
-      _id = data["id"];
-      _roomIsFree = _is_in_home_temp;
+      _device_id = data["device_id"];
+      is_in_home_str = data["is_in_home"];
+      if (int.parse(is_in_home_str) == 1){
+        _am_i_in_home = false;
+      }else {_am_i_in_home = true;}
+      fetchJsonNeighbours(_device_id);
     });
     // Reading neighbours list.
     final File neighboursFile = File('${directory.path}/neighbours.json');
@@ -92,7 +88,28 @@ class _userProfilePageState extends State<userProfilePage>
     final directory = await getApplicationDocumentsDirectory();
     final File userFile = File('${directory.path}/userdata.json');
     userFile.writeAsString(
-        '{\n  "id" : "",\n  "email" : "",\n  "password" : "",\n  "is_in_home" : ""\n}');
+        '{\n  "device_id" : "",\n  "email" : "",\n  "password" : "",\n  "is_in_home" : ""\n}');
+  }
+
+  Future<void> updateStateRequest () async {
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+      "accept": "application/json"
+    };
+    String newState = '';
+    if(_am_i_in_home){
+      setState(() {
+        newState = '0';
+      });
+    }else{
+      setState(() {
+        newState = '1';
+      });
+    }
+    String json = '{"id": "$_device_id", "email": "$_email", "password": "$_password", "is_in_home": $newState}';
+    Response response =
+    await put(Uri.parse("$_url/update/$_email"), headers: headers, body: json);
+    print("Request content : " + json);
   }
 
   // ==========================================================================
@@ -108,7 +125,9 @@ class _userProfilePageState extends State<userProfilePage>
     controller.repeat(reverse: true);
 
     readJSON();
-    fetchJsonNeighbours();
+    // Тут должен был быть вызов этой функции, но из-за приколов с async её
+    // тут нет. Вызов будет сделан внутри функции readJSON().
+    // fetchJsonNeighbours(_device_id);
     super.initState();
   }
 
@@ -147,8 +166,8 @@ class _userProfilePageState extends State<userProfilePage>
   List<Widget> neighboursListBuilder() {
     List<Widget> result = [];
     for (int index = 0; index < _neighboursInfo.length; index++) {
-      if (_neighboursInfo[index]["is_in_home"]) {
-        _roommatesCurrentStateList.add(false);
+      if (_neighboursInfo[index]["is_in_home"] == 1) {
+        _roommatesCurrentStateList.add(false); // false - дома
         _roomIsFree = false;
       } else {
         _roommatesCurrentStateList.add(true);
@@ -173,21 +192,17 @@ class _userProfilePageState extends State<userProfilePage>
                 Padding(
                   padding: const EdgeInsets.only(left: 5),
                   child: Text(
-                    _neighboursInfo[index]["name"],
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold
-                    ),
+                    _neighboursInfo[index]["email"],
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(right: 5),
                   child: Text(
-                    _neighboursInfo[index]["is_in_home"] ? 'Дома' : 'Не дома',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold
-                    ),
+                    _neighboursInfo[index]["is_in_home"] == 1
+                        ? 'Дома'
+                        : 'Не дома',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -244,8 +259,6 @@ class _userProfilePageState extends State<userProfilePage>
                         }),
                   ],
                 ),
-                // TODO: Это уродство тут временно. Нужно что-то придумать с дизайном. ИСПРАВЛЯТЬ В ПОСЛЕДНЮЮ ОЧЕРЕДЬ!
-                //  Пока оставлю.
                 // TODO: Сюда передавать готовый список соседей. Его формировать в отдельтном методе, который вызывается в setState(). Список формируется после получения инфы с сервера
                 Column(
                   children: neighboursListBuilder(),
@@ -416,7 +429,7 @@ class _userProfilePageState extends State<userProfilePage>
     );
   }
 
-  Widget stateDisplay(){
+  Widget stateDisplay() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 20, 10, 20),
       child: Container(
@@ -428,12 +441,12 @@ class _userProfilePageState extends State<userProfilePage>
         height: 500,
         child: Center(
             child: Text(
-              _roomIsFree ? 'Свободно' : 'Занято',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 40,
-              ),
-            )),
+          _roomIsFree ? 'Свободно' : 'Занято',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 40,
+          ),
+        )),
       ),
     );
   }
@@ -449,6 +462,7 @@ class _userProfilePageState extends State<userProfilePage>
                   readJSON();
                   // print(_neighboursInfo);
                   setState(() {
+                    fetchJsonNeighbours(_device_id);
                     _showNeighbours = !_showNeighbours;
                   });
                 },
@@ -473,9 +487,9 @@ class _userProfilePageState extends State<userProfilePage>
             padding: const EdgeInsets.only(bottom: 10),
             child: TextButton(
                 onPressed: () {
-                  // TODO: Сделать отправку на сервер сообщение об изменении состояния пользователя.
                   setState(() {
                     _am_i_in_home = !_am_i_in_home;
+                    updateStateRequest();
                   });
                 },
                 child: Container(

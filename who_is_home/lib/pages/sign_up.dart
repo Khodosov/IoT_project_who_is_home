@@ -17,8 +17,8 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  String _email, _password, _id;
-  bool _passwordVisible = true, _is_in_home = false;
+  String _email, _password, _device_id, _is_in_home;
+  bool _passwordVisible = true;
   bool _requestSucceed = false;
   bool _allreadyExist = false;
   final _formKey = GlobalKey<FormState>();
@@ -28,26 +28,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
   // /login + POST + тот же json, только без id - вход
   //
   // /neighbours - список соседей
+  // /update/почта человека + PUT - обновление состояния, почты, пароля, чего угодно
+  // /neighbours/код устройства - поправила вывод соседей
+  // по /neighbours/ до сих пор доступны все соседи
+
   String _url = 'http://lemonl1me.pythonanywhere.com';
 
   // ==========================================================================
-  void updateUserJSON(int id, String email, String password) async {
+  void updateUserJSON(String id, String email, String password, String is_in_home) async {
     final directory = await getApplicationDocumentsDirectory();
     final File userFile = File('${directory.path}/userdata.json');
     String jsonUser =
-        '{\n  "id" : "$id",\n  "email" : "$email",\n  "password" : "$password",\n  "is_in_home" : "true"\n}';
+        '{\n  "device_id" : "$id",\n  "email" : "$email",\n  "password" : "$password",\n  "is_in_home" : "$is_in_home"\n}';
     userFile.writeAsString(jsonUser);
   }
 
-  Future<void> registrationRequest(
-      String id, String email, String password) async {
+  Future<void> registrationRequest(String device_id, String email, String password) async {
     Map<String, String> headers = {
       "Content-type": "application/json",
       "accept": "application/json"
     };
-    String json = '{"id": "$id", "email": "$email", "password": "$password"}';
+    String json = '{"id": "$device_id", "email": "$email", "password": "$password"}';
     Response response =
         await post(Uri.parse("$_url/register"), headers: headers, body: json);
+    print("Request content : " + json);
     int statusCode = response.statusCode;
     print('CONNECTION...');
     print(response.body);
@@ -154,7 +158,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             hint: 'Введите код, указанный на устройстве'),
                         onSaved: (value) {
                           setState(() {
-                            _id = value;
+                            _device_id = value;
                           });
                         },
                       ),
@@ -170,12 +174,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     if (_formKey.currentState.validate()) {
                       _formKey.currentState.save();
                       setState(() {
-                        // _visibleProgress = true;
-                        print(_email);
-                        print(_password);
-                        print(_id);
-                        updateUserJSON(int.parse(_id), _email, _password);
-                        registrationRequest(_id, _email, _password);
+                        updateUserJSON(_device_id, _email, _password, "1");
+                        registrationRequest(_device_id, _email, _password);
                       });
                     }
                   });

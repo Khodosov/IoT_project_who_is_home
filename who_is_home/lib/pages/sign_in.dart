@@ -20,11 +20,11 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _doesNotExist = false;
 
   // Логика работы с файловой системой. =======================================
-  void updateUserJSON(int id, String email, String password) async {
+  void updateUserJSON(int device_id, String email, String password, String is_in_home) async {
     final directory = await getApplicationDocumentsDirectory();
     final File userFile = File('${directory.path}/userdata.json');
     String jsonUser =
-        '{\n  "id" : "$id",\n  "email" : "$email",\n  "password" : "$password",\n  "is_in_home" : "true"\n}';
+        '{\n  "device_id" : "$device_id",\n  "email" : "$email",\n  "password" : "$password",\n  "is_in_home" : "$is_in_home"\n}';
     userFile.writeAsString(jsonUser);
   }
 
@@ -39,12 +39,12 @@ class _SignInScreenState extends State<SignInScreen> {
     await post(Uri.parse("$_url/login"), headers: headers, body: json);
     int statusCode = response.statusCode;
     print('CONNECTION...');
-    print(response.body);
+    int device_id = int.parse(response.body);
     print("Status Code:" + statusCode.toString());
     if (statusCode == 201) {
       setState(() {
         _requestSucceed = true;
-        updateUserJSON(0, _email, _password);
+        updateUserJSON(device_id, _email, _password, "1");
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => userProfilePage()));
       });
