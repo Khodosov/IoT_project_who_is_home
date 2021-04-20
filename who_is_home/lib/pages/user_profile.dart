@@ -32,19 +32,20 @@ class _userProfilePageState extends State<userProfilePage>
       _showNeighbours = false;
 
   List<bool> _roommatesCurrentStateList = [];
-  bool _roomIsFree = false;
+  bool _roomIsFree = true;
+  bool _homeAlone;
   List _neighboursInfo = [];
 
   String _url = 'http://lemonl1me.pythonanywhere.com';
 
   // Функции, отвечающие за получение, храненние и обработку информации =======
-  Future<void> fetchJsonNeighbours(String device_id) async {
+  Future<void> fetchJsonNeighbours() async {
     Map<String, String> headers = {
       "Content-type": "application/json",
       "accept": "application/json"
     };
     Response response =
-        await get(Uri.parse("$_url/neighbours/$device_id"), headers: headers);
+        await get(Uri.parse("$_url/neighbours/$_device_id/$_email"), headers: headers);
     int statusCode = response.statusCode;
     print('FETCHING NEIGHBOURS DATA STATUS CODE : ' + statusCode.toString());
     jsonNeighbours = response.body;
@@ -69,10 +70,10 @@ class _userProfilePageState extends State<userProfilePage>
       _password = data["password"];
       _device_id = data["device_id"];
       is_in_home_str = data["is_in_home"];
-      if (int.parse(is_in_home_str) == 1){
+      if (int.parse(is_in_home_str) == 0){
         _am_i_in_home = false;
       }else {_am_i_in_home = true;}
-      fetchJsonNeighbours(_device_id);
+      fetchJsonNeighbours();
     });
     // Reading neighbours list.
     final File neighboursFile = File('${directory.path}/neighbours.json');
@@ -82,6 +83,14 @@ class _userProfilePageState extends State<userProfilePage>
       neighboursFile.writeAsString(jsonNeighbours);
     }
     _visibleProgress = false;
+  }
+
+  void updateUserJSON(String id, String email, String password, bool is_in_home) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final File userFile = File('${directory.path}/userdata.json');
+    String jsonUser =
+        '{\n  "device_id" : "$id",\n  "email" : "$email",\n  "password" : "$password",\n  "is_in_home" : "$is_in_home"\n}';
+    userFile.writeAsString(jsonUser);
   }
 
   void deleteDataJSON() async {
@@ -167,10 +176,14 @@ class _userProfilePageState extends State<userProfilePage>
     List<Widget> result = [];
     for (int index = 0; index < _neighboursInfo.length; index++) {
       if (_neighboursInfo[index]["is_in_home"] == 1) {
-        _roommatesCurrentStateList.add(false); // false - дома
-        _roomIsFree = false;
+        _roommatesCurrentStateList.add(false);
       } else {
         _roommatesCurrentStateList.add(true);
+      }
+      if (_roommatesCurrentStateList.contains(false)){
+        setState(() {
+          _roomIsFree = false;
+        });
       }
     }
     if (_neighboursInfo != null) {
@@ -199,9 +212,9 @@ class _userProfilePageState extends State<userProfilePage>
                 Padding(
                   padding: const EdgeInsets.only(right: 5),
                   child: Text(
-                    _neighboursInfo[index]["is_in_home"] == 1
-                        ? 'Дома'
-                        : 'Не дома',
+                    _roommatesCurrentStateList[index]
+                        ? 'Не дома'
+                        : 'Дома',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -435,13 +448,12 @@ class _userProfilePageState extends State<userProfilePage>
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40),
-          color: _roomIsFree ? Colors.green : Colors.red,
+          color: getColor(),
         ),
         width: double.infinity,
         height: 500,
         child: Center(
-            child: Text(
-          _roomIsFree ? 'Свободно' : 'Занято',
+            child: Text(getStatusText(),
           style: TextStyle(
             color: Colors.white,
             fontSize: 40,
@@ -459,10 +471,8 @@ class _userProfilePageState extends State<userProfilePage>
             padding: const EdgeInsets.only(bottom: 10),
             child: TextButton(
                 onPressed: () {
-                  readJSON();
-                  // print(_neighboursInfo);
                   setState(() {
-                    fetchJsonNeighbours(_device_id);
+                    fetchJsonNeighbours();
                     _showNeighbours = !_showNeighbours;
                   });
                 },
@@ -490,6 +500,7 @@ class _userProfilePageState extends State<userProfilePage>
                   setState(() {
                     _am_i_in_home = !_am_i_in_home;
                     updateStateRequest();
+                    updateUserJSON(_device_id, _email, _password, _am_i_in_home);
                   });
                 },
                 child: Container(
@@ -511,4 +522,17 @@ class _userProfilePageState extends State<userProfilePage>
       ],
     );
   }
+
+  String getStatusText(){
+    if (!_am_i_in_home & _roomIsFree){return 'Вы один дома';}
+    else if (_roomIsFree & _am_i_in_home){return 'Дома никого';}
+    else{return 'Ваш сосед дома';}
+  }
+
+  Color getColor(){
+    if (!_am_i_in_home & _roomIsFree){return Colors.orange;}
+    else if (_roomIsFree & _am_i_in_home){return Colors.green;}
+    else{return Colors.red;}
+  }
+
 }
