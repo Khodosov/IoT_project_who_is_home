@@ -1,30 +1,50 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility that Flutter provides. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:who_is_home/main.dart';
+import 'package:who_is_home/pages/sign_up.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  // В соответсвии с ТЗ проверим форму для ввода почты вводя следующие строки:
+  final String incorrectMailWithoutAt = 'testmail.ru';
+  final String incorrectgMailWithoutDot = 'test@mailru';
+  final String incorrectMailWithoutTextAfterAt = 'test@';
+  final String incorrectMailWithoutTextAfterDot = 'test@mail.';
+  final String incorrectMailWithNoSymbols = '';
+  final String incorrectMailWithoutSymbolsBeforeAt = '@mail.ru';
+  final String incorrectMailWithoutSymbolsBeforeDot = '.ru';
+  final String correctMailSPBU = 'st068705@student.spbu.ru';
+  final String correctMail = 'test@gmail.com';
 
-    // Verify that our counter starts at 0.
+  // В соответсвии с ТЗ проверим форму для ввода пароля вводя следующие строки:
+  final String incorrectPasswordWithNoSymbols = '';
+  final String incorrectPasswordToShort = 't';
+  final String correctPassword = 'TESTtest';
+  final String oneMoreCorrectPassword = 'TESTtest1';
+
+  // В соответсвии с ТЗ проверим форму для ввода номера устройства вводя
+  // следующие строки:
+  final String correctNumber = '777';
+  final String oneMoreCorrectNumber = '1';
+  final String incorrectNumberWithNoSymbols = '';
+  final String incorrectNumberIncludingLetters = '77a';
+  final String incorrectNumberWithOnlyLetters = 'test';
+
+  testWidgets('TEST TextFormField FOR EMAIL', (WidgetTester tester) async {
+    await tester.pumpWidget(SignUpScreen());
+
+
+  });
+
+  testWidgets('TEST TextFormField FOR PASSWORD', (WidgetTester tester) async {
+    await tester.pumpWidget(SignUpScreen());
+
     expect(find.text('0'), findsOneWidget);
     expect(find.text('1'), findsNothing);
 
-    // Tap the '+' icon and trigger a frame.
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
-    // Verify that our counter has incremented.
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget);
   });
+
 }
