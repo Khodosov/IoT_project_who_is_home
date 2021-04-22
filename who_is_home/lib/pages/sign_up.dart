@@ -23,6 +23,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _allreadyExist = false;
   final _formKey = GlobalKey<FormState>();
 
+
+
   // Ссылка на сервер. К ней нужно прибавть /register + POST + формат jsona на скрине - регистрация
   //
   // /login + POST + тот же json, только без id - вход
@@ -84,125 +86,131 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 25),
-              child: Text(
-                'Добро пожаловать!',
-                style: TextStyle(
-                  color: Colors.grey[900],
-                  fontSize: 22,
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(15, 0, 15, 45),
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  shrinkWrap: true,
-                  children: <Widget>[
-                    Container(
-                      height: 60,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(40)),
-                      child: TextFormField(
-                        validator: UIComponent.emailValidate,
-                        decoration: UIComponent.inputDecoration(
-                            label: 'Ваша почта', hint: 'Введите вочту'),
-                        onSaved: (value) {
-                          setState(() {
-                            _email = value;
-                          });
-                        },
-                      ),
-                    ),
-                    Container(
-                      height: 60,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(40)),
-                      child: TextFormField(
-                        obscureText: _passwordVisible,
-                        validator: UIComponent.passwordValidate,
-                        decoration: UIComponent.inputDecorationPassword(
-                            label: 'Ваш пароль',
-                            hint: 'Введите пароль',
-                            suffixIcon: _passwordVisible,
-                            eventSuffixIcon: () {
-                              setState(() {
-                                _passwordVisible = !_passwordVisible;
-                              });
-                            }),
-                        onSaved: (value) {
-                          setState(() {
-                            _password = value;
-                          });
-                        },
-                      ),
-                    ),
-                    Container(
-                      height: 60,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(40)),
-                      child: TextFormField(
-                        validator: UIComponent.textValidate,
-                        decoration: UIComponent.inputDecoration(
-                            label: 'Код устройства',
-                            hint: 'Введите код, указанный на устройстве'),
-                        onSaved: (value) {
-                          setState(() {
-                            _device_id = value;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            TextButton(
-                onPressed: () {
-                  setState(() {
-                    // TODO: set json data
-                    if (_formKey.currentState.validate()) {
-                      _formKey.currentState.save();
-                      setState(() {
-                        updateUserJSON(_device_id, _email, _password, "1");
-                        registrationRequest(_device_id, _email, _password);
-                      });
-                    }
-                  });
-                },
-                child: Container(
-                  height: 45,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      color: Colors.lightBlue,
-                      borderRadius: BorderRadius.circular(40)),
-                  child: Center(
-                      child: Text(
-                    'Подтвердить регистрацию!',
+    return MediaQuery(
+      data: MediaQueryData(),
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Scaffold(
+          body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 25),
+                  child: Text(
+                    'Добро пожаловать!',
                     style: TextStyle(
+                      color: Colors.grey[900],
                       fontSize: 22,
-                      color: Colors.white,
                     ),
-                  )),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(15, 0, 15, 45),
+                  child: Form(
+                    key: _formKey,
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: <Widget>[
+                        Container(
+                          height: 60,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(40)),
+                          child: TextFormField(
+                            validator: UIComponent.emailValidate,
+                            decoration: UIComponent.inputDecoration(
+                                label: 'Ваша почта', hint: 'Введите вочту'),
+                            onSaved: (value) {
+                              setState(() {
+                                _email = value;
+                              });
+                            },
+                          ),
+                        ),
+                        Container(
+                          height: 60,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(40)),
+                          child: TextFormField(
+                            obscureText: _passwordVisible,
+                            validator: UIComponent.passwordValidate,
+                            decoration: UIComponent.inputDecorationPassword(
+                                label: 'Ваш пароль',
+                                hint: 'Введите пароль',
+                                suffixIcon: _passwordVisible,
+                                eventSuffixIcon: () {
+                                  setState(() {
+                                    _passwordVisible = !_passwordVisible;
+                                  });
+                                }),
+                            onSaved: (value) {
+                              setState(() {
+                                _password = value;
+                              });
+                            },
+                          ),
+                        ),
+                        Container(
+                          height: 60,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(40)),
+                          child: TextFormField(
+                            validator: UIComponent.textValidate,
+                            decoration: UIComponent.inputDecoration(
+                                label: 'Код устройства',
+                                hint: 'Введите код, указанный на устройстве'),
+                            onSaved: (value) {
+                              setState(() {
+                                _device_id = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                TextButton(
+                    onPressed: () {
+                      setState(() {
+                        // TODO: set json data
+                        if (_formKey.currentState.validate()) {
+                          _formKey.currentState.save();
+                          setState(() {
+                            updateUserJSON(_device_id, _email, _password, "1");
+                            registrationRequest(_device_id, _email, _password);
+                          });
+                        }
+                      });
+                    },
+                    child: Container(
+                      height: 45,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          color: Colors.lightBlue,
+                          borderRadius: BorderRadius.circular(40)),
+                      child: Center(
+                          child: Text(
+                        'Подтвердить регистрацию!',
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.white,
+                        ),
+                      )),
+                    )
+                ),
+                Visibility(
+                  visible: _allreadyExist,
+                  child: Text("Аккаунт с введёнными данными уже существует",
+                    style: TextStyle(color: Colors.red),
+                  )
                 )
-            ),
-            Visibility(
-              visible: _allreadyExist,
-              child: Text("Аккаунт с введёнными данными уже существует",
-                style: TextStyle(color: Colors.red),
-              )
-            )
-          ]),
+              ]),
+        ),
+      ),
     );
   }
 }

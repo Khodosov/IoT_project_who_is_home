@@ -30,21 +30,10 @@ void main() {
 
   testWidgets('TEST TextFormField FOR EMAIL', (WidgetTester tester) async {
     await tester.pumpWidget(SignUpScreen());
+    
 
 
   });
 
-  testWidgets('TEST TextFormField FOR PASSWORD', (WidgetTester tester) async {
-    await tester.pumpWidget(SignUpScreen());
-
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
 
 }
