@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
@@ -30,11 +31,16 @@ class _SignInScreenState extends State<SignInScreen> {
 
   // Работа с сетью ===========================================================
   Future<void> loginRequest(String email, String password) async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    // use the returned token to send messages to users from your custom server
+    String token = await messaging.getToken(
+      vapidKey: "BNEZLRS7baD5qDrOaFCTo5EIstA-p19nENsS6wWLFvYyGFE7VksjlwX3cyAIx6lVRvMrLpkUYpiFoFmphVTHBZs",
+    );
     Map<String, String> headers = {
       "Content-type": "application/json",
       "accept": "application/json"
     };
-    String json = '{"email": "$email", "password": "$password"}';
+    String json = '{"email": "$email", "password": "$password", "fcm_token": "$token"}';
     Response response =
     await post(Uri.parse("$_url/login"), headers: headers, body: json);
     int statusCode = response.statusCode;
@@ -97,7 +103,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       child: TextFormField(
                         validator: UIComponent.emailValidate,
                         decoration: UIComponent.inputDecoration(
-                            label: 'Ваша почта', hint: 'Введите вочту'),
+                            label: 'Ваша почта', hint: 'Введите почту'),
                         onSaved: (value) {
                           setState(() {
                             _email = value;

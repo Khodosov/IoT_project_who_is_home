@@ -28,12 +28,6 @@ void main() {
   final String incorrectNumberIncludingLetters = '77a';
   final String incorrectNumberWithOnlyLetters = 'test';
 
-  testWidgets('TEST TextFormField FOR EMAIL', (WidgetTester tester) async {
-    await tester.pumpWidget(SignUpScreen());
-    
-
-
-  });
 
 
 }

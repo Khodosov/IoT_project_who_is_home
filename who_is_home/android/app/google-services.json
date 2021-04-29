@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "405325878128",
+    "project_id": "whoishome-cb514",
+    "storage_bucket": "whoishome-cb514.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405325878128:android:1f121419b15c67d9cd75b5",
+        "android_client_info": {
+          "package_name": "whoishome.who_is_home"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "405325878128-efmih5sv9bv2frrubbufr8vfhtvsblli.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlA15CkACBkTIRX_VZy0nz_E7W3na5tUo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "405325878128-efmih5sv9bv2frrubbufr8vfhtvsblli.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

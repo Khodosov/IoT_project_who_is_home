@@ -134,9 +134,9 @@ class _userProfilePageState extends State<userProfilePage>
     controller.repeat(reverse: true);
 
     readJSON();
-    // Тут должен был быть вызов этой функции, но из-за приколов с async её
-    // тут нет. Вызов будет сделан внутри функции readJSON().
-    // fetchJsonNeighbours(_device_id);
+    // Тут должен был быть вызов функции fetchJsonNeighbours(_device_id), но
+    // из-за приколов с async её тут нет.
+    // Вызов будет сделан внутри функции readJSON().
     super.initState();
   }
 
