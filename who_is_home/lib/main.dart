@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -6,19 +8,18 @@ import 'package:path_provider/path_provider.dart';
 import 'package:who_is_home/pages/sign_in.dart';
 import 'package:who_is_home/pages/sign_up.dart';
 
+import 'firebase_messaging_custom.dart';
+
+
+// vapid key: BNEZLRS7baD5qDrOaFCTo5EIstA-p19nENsS6wWLFvYyGFE7VksjlwX3cyAIx6lVRvMrLpkUYpiFoFmphVTHBZs
+
 void main() {
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     title: 'Who is home?',
     theme: ThemeData(),
     home: MyApp(),
   ));
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  print("Handling a background message: ${message.messageId}");
 }
 
 
@@ -28,21 +29,29 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  void messegingMethod() async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    // use the returned token to send messages to users from your custom server
-    String token = await messaging.getToken(
-      vapidKey:
-          "BNEZLRS7baD5qDrOaFCTo5EIstA-p19nENsS6wWLFvYyGFE7VksjlwX3cyAIx6lVRvMrLpkUYpiFoFmphVTHBZs",
-    );
-    print('REGISTRATION TOKEN: ' + token);
+
+  void _callback(int amount) {
+    setState(() {});
+  }
+
+  void saveFCMToken(String fcmToken) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final File tokenFile = File('${directory.path}/fcmtoken.json');
+    String jsonUser =
+        '{"fcm_token": "$fcmToken"}';
+    tokenFile.writeAsString(jsonUser);
+    print('FCM_TOKEN : $fcmToken');
   }
 
   @override
   void initState() {
+    FirebaseMessagingServiceProvider().fcmToken()
+        .then((token) => saveFCMToken(token));
+    FirebaseMessagingServiceProvider.callback ??= _callback;
+
+    // the code near this line in initState() is possibly useless =============
     Firebase.initializeApp().whenComplete(() {
       print("FIREBASE INITIALIZATION COMPLETED");
-      // messegingMethod();
       setState(() {});
     });
     super.initState();

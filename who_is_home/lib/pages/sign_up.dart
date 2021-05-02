@@ -10,6 +10,7 @@ import 'package:who_is_home/pages/user_profile.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../firebase_messaging_custom.dart';
 import '../includes.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -18,11 +19,12 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  String _email, _password, _device_id, _is_in_home;
+  String _email, _password, _device_id, _is_in_home, _token, jsonToken;
   bool _passwordVisible = true;
   bool _requestSucceed = false;
   bool _allreadyExist = false;
   final _formKey = GlobalKey<FormState>();
+
 
 
 
@@ -47,16 +49,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> registrationRequest(String device_id, String email, String password) async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    // use the returned token to send messages to users from your custom server
-    String token = await messaging.getToken(
-      vapidKey: "BNEZLRS7baD5qDrOaFCTo5EIstA-p19nENsS6wWLFvYyGFE7VksjlwX3cyAIx6lVRvMrLpkUYpiFoFmphVTHBZs",
-    );
+    final directory = await getApplicationDocumentsDirectory();
+    final File tokenFile = File('${directory.path}/fcmtoken.json');
+    if (await tokenFile.exists()) {
+      jsonToken = await tokenFile.readAsString();
+    } else {
+      tokenFile.writeAsString(jsonToken);
+    }
+    Map<String, dynamic> data = jsonDecode(jsonToken);
+    setState(() {
+      _token = data["fcm_token"];
+    });
     Map<String, String> headers = {
       "Content-type": "application/json",
       "accept": "application/json"
     };
-    String json = '{"id": "$device_id", "email": "$email", "password": "$password", "fcm_token": "$token"}';
+    String json = '{"id": "$device_id", "email": "$email", "password": "$password", "fcm_token": "$_token"}';
     Response response =
         await post(Uri.parse("$_url/register"), headers: headers, body: json);
     print("Request content : " + json);

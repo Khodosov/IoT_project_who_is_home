@@ -7,6 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:who_is_home/includes.dart';
 import 'package:who_is_home/pages/user_profile.dart';
 
+import '../firebase_messaging_custom.dart';
+
 class SignInScreen extends StatefulWidget {
   @override
   _SignInScreenState createState() => _SignInScreenState();
@@ -19,9 +21,11 @@ class _SignInScreenState extends State<SignInScreen> {
   String _url = 'http://lemonl1me.pythonanywhere.com';
   bool _requestSucceed = false;
   bool _doesNotExist = false;
+  String _token, jsonToken;
 
   // Логика работы с файловой системой. =======================================
-  void updateUserJSON(int device_id, String email, String password, String is_in_home) async {
+  void updateUserJSON(
+      int device_id, String email, String password, String is_in_home) async {
     final directory = await getApplicationDocumentsDirectory();
     final File userFile = File('${directory.path}/userdata.json');
     String jsonUser =
@@ -31,18 +35,25 @@ class _SignInScreenState extends State<SignInScreen> {
 
   // Работа с сетью ===========================================================
   Future<void> loginRequest(String email, String password) async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    // use the returned token to send messages to users from your custom server
-    String token = await messaging.getToken(
-      vapidKey: "BNEZLRS7baD5qDrOaFCTo5EIstA-p19nENsS6wWLFvYyGFE7VksjlwX3cyAIx6lVRvMrLpkUYpiFoFmphVTHBZs",
-    );
+    final directory = await getApplicationDocumentsDirectory();
+    final File tokenFile = File('${directory.path}/fcmtoken.json');
+    if (await tokenFile.exists()) {
+      jsonToken = await tokenFile.readAsString();
+    } else {
+      tokenFile.writeAsString(jsonToken);
+    }
+    Map<String, dynamic> data = jsonDecode(jsonToken);
+    setState(() {
+      _token = data["fcm_token"];
+    });
     Map<String, String> headers = {
       "Content-type": "application/json",
       "accept": "application/json"
     };
-    String json = '{"email": "$email", "password": "$password", "fcm_token": "$token"}';
+    String json =
+        '{"email": "$email", "password": "$password", "fcm_token": "$_token"}';
     Response response =
-    await post(Uri.parse("$_url/login"), headers: headers, body: json);
+        await post(Uri.parse("$_url/login"), headers: headers, body: json);
     int statusCode = response.statusCode;
     print('CONNECTION...');
     int device_id = int.parse(response.body);
@@ -55,18 +66,20 @@ class _SignInScreenState extends State<SignInScreen> {
             MaterialPageRoute(builder: (context) => userProfilePage()));
       });
     }
-    if (statusCode == 400){
+    if (statusCode == 400) {
       setState(() {
         _doesNotExist = true;
       });
     }
     if (_requestSucceed) {
+      print('LOGIN REQUEST DATA: ' + json);
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => userProfilePage()));
     }
   }
 
   // ==========================================================================
+
 
   @override
   void initState() {
@@ -78,15 +91,13 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-
-
   // ==========================================================================
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
-        children: <Widget> [
+        children: <Widget>[
           Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             Padding(
               padding: EdgeInsets.fromLTRB(15, 0, 15, 45),
@@ -141,20 +152,20 @@ class _SignInScreenState extends State<SignInScreen> {
             ),
             Visibility(
                 visible: _doesNotExist,
-                child: Text("Почта или пароль введены неверно",
+                child: Text(
+                  "Почта или пароль введены неверно",
                   style: TextStyle(color: Colors.red),
-                )
-            ),
+                )),
             TextButton(
                 onPressed: () async {
-                    if (_formKey.currentState.validate()) {
-                      _formKey.currentState.save();
-                      setState(() {
-                        print(_email);
-                        print(_password);
-                        loginRequest(_email, _password);
-                      });
-                    }
+                  if (_formKey.currentState.validate()) {
+                    _formKey.currentState.save();
+                    setState(() {
+                      print(_email);
+                      print(_password);
+                      loginRequest(_email, _password);
+                    });
+                  }
                 },
                 child: Container(
                   height: 45,
@@ -164,12 +175,12 @@ class _SignInScreenState extends State<SignInScreen> {
                       borderRadius: BorderRadius.circular(40)),
                   child: Center(
                       child: Text(
-                        'Вход',
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: Colors.white,
-                        ),
-                      )),
+                    'Вход',
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Colors.white,
+                    ),
+                  )),
                 )),
           ]),
         ],
