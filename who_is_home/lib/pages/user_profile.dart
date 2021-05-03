@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:who_is_home/main.dart';
+import 'package:who_is_home/pages/start_menu_page.dart';
 import 'package:who_is_home/pages/user_profile_settings.dart';
 import 'package:who_is_home/data.dart';
 
@@ -96,8 +97,7 @@ class _userProfilePageState extends State<userProfilePage>
   void deleteDataJSON() async {
     final directory = await getApplicationDocumentsDirectory();
     final File userFile = File('${directory.path}/userdata.json');
-    userFile.writeAsString(
-        '{\n  "device_id" : "",\n  "email" : "",\n  "password" : "",\n  "is_in_home" : ""\n}');
+    userFile.delete();
   }
 
   Future<void> updateStateRequest () async {
@@ -435,7 +435,7 @@ class _userProfilePageState extends State<userProfilePage>
               onPressed: () {
                 deleteDataJSON();
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => MyApp()));
+                    context, MaterialPageRoute(builder: (context) => StartMenuPage()));
               })
         ],
       ),

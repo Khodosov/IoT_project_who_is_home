@@ -1,16 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:who_is_home/pages/user_profile.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-import '../firebase_messaging_custom.dart';
 import '../includes.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -83,7 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
     }
     if (_requestSucceed) {
-      Navigator.push(
+      Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => userProfilePage()));
     }
   }

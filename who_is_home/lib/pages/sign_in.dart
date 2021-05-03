@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:who_is_home/includes.dart';
 import 'package:who_is_home/pages/user_profile.dart';
 
-import '../firebase_messaging_custom.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -62,7 +61,8 @@ class _SignInScreenState extends State<SignInScreen> {
       setState(() {
         _requestSucceed = true;
         updateUserJSON(device_id, _email, _password, "1");
-        Navigator.push(context,
+        print('LOGIN REQUEST DATA: ' + json);
+        Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => userProfilePage()));
       });
     }
@@ -70,11 +70,6 @@ class _SignInScreenState extends State<SignInScreen> {
       setState(() {
         _doesNotExist = true;
       });
-    }
-    if (_requestSucceed) {
-      print('LOGIN REQUEST DATA: ' + json);
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => userProfilePage()));
     }
   }
 
