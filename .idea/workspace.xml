@@ -2,16 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="65912b54-a37f-4733-abdf-28eca1977b03" name="Default Changelist" comment="Добавлена поддержка push-уведомлений.">
-      <change afterPath="$PROJECT_DIR$/who_is_home/assets/images/sandalcrew.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/who_is_home/lib/pages/start_menu_page.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/who_is_home/lib/pages/start_splash_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/who_is_home/lib/app_customization.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/who_is_home/lib/firebase_messaging_custom.dart" beforeDir="false" afterPath="$PROJECT_DIR$/who_is_home/lib/push_notifications/firebase_messaging_custom.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/who_is_home/lib/firebase_notification.dart" beforeDir="false" afterPath="$PROJECT_DIR$/who_is_home/lib/push_notifications/firebase_notification.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/who_is_home/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/who_is_home/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/who_is_home/lib/pages/sign_in.dart" beforeDir="false" afterPath="$PROJECT_DIR$/who_is_home/lib/pages/sign_in.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/who_is_home/lib/pages/sign_up.dart" beforeDir="false" afterPath="$PROJECT_DIR$/who_is_home/lib/pages/sign_up.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/who_is_home/lib/pages/user_profile.dart" beforeDir="false" afterPath="$PROJECT_DIR$/who_is_home/lib/pages/user_profile.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/who_is_home/lib/includes.dart" beforeDir="false" afterPath="$PROJECT_DIR$/who_is_home/lib/includes.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,10 +132,10 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="678" y="342" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1080@0.0.1920.1080" timestamp="1619623243197" />
-    <state x="100" y="100" width="1257" height="880" key="AVDManager" timestamp="1620041153969">
+    <state x="100" y="100" width="1257" height="880" key="AVDManager" timestamp="1620118835522">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="100" y="100" width="1257" height="880" key="AVDManager/0.0.1920.1080@0.0.1920.1080" timestamp="1620041153969" />
+    <state x="100" y="100" width="1257" height="880" key="AVDManager/0.0.1920.1080@0.0.1920.1080" timestamp="1620118835522" />
     <state x="582" y="109" key="CommitChangelistDialog2" timestamp="1619974239474">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
@@ -171,9 +164,9 @@
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
     <state x="461" y="185" key="SettingsEditor/0.0.1920.1080@0.0.1920.1080" timestamp="1619974268059" />
-    <state x="616" y="250" key="run.anything.popup" timestamp="1620046017758">
+    <state x="616" y="250" key="run.anything.popup" timestamp="1620119140795">
       <screen x="0" y="0" width="1920" height="1080" />
     </state>
-    <state x="616" y="250" key="run.anything.popup/0.0.1920.1080@0.0.1920.1080" timestamp="1620046017758" />
+    <state x="616" y="250" key="run.anything.popup/0.0.1920.1080@0.0.1920.1080" timestamp="1620119140795" />
   </component>
 </project>

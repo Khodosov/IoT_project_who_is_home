@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// Пресеты форм для заполнения и валидаторы
+
 class UIComponent {
   static InputDecoration inputDecoration({String label, String hint}) {
     return InputDecoration(
